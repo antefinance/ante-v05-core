@@ -19,7 +19,7 @@ contract AnteAVLDropTest is AnteTest("Ante Doesnt Lose 99% of its AVL") {
     using SafeMath for uint256;
 
     uint256 public totalAVL;
-    uint256 public aVLThreshold;
+    uint256 public avlThreshold;
     
     // Array of contract addresses to test should be passed in when creating
     constructor (address[] memory _testedContracts) {
@@ -32,18 +32,19 @@ contract AnteAVLDropTest is AnteTest("Ante Doesnt Lose 99% of its AVL") {
         }
         
         // Calculate test failure threshold using 99% drop in total AVL
-        aVLThreshold = totalAVL.div(100);
+        avlThreshold = totalAVL.div(100);
     }
     
     function checkTestPasses() public view override returns (bool) {
         uint256 currentAVL;
 
         // Sum up current AVL across tested contracts
+        // TODO: to exclude failed tests or no?
         for (uint i = 0; i < testedContracts.length; i++) {
             currentAVL = currentAVL.add(testedContracts[i].balance);
         }
 
         // Check current AVL against test failure threshold
-        return currentAVL >= aVLThreshold;
+        return currentAVL >= avlThreshold;
     }
 }

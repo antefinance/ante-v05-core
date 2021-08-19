@@ -16,6 +16,7 @@ import "../AnteTest.sol";
 
 // Ante Test to check if Ante pol contract state matches eth balance
 contract AntePoolTest is AnteTest("Ante Pool contract state matches eth balance") { 
+    using SafeMath for uint256;
 
     constructor () {
         // NB: this points to ante pools deployed on rinkeby, will need to change for mainnet deploy
@@ -33,12 +34,11 @@ contract AntePoolTest is AnteTest("Ante Pool contract state matches eth balance"
             AntePool antePool = AntePool(testedContracts[i]);
             // totalPaidOut should be 0 before test fails
             if (
-                testedContracts[i].balance < (
-                    antePool.getTotalChallengerStaked() +
-                    antePool.getTotalStaked() +
-                    antePool.getTotalPendingWithdraw() -
-                    antePool.totalPaidOut()
-                )
+                testedContracts[i].balance <
+                    antePool.getTotalChallengerStaked().add(
+                    antePool.getTotalStaked()).add(
+                    antePool.getTotalPendingWithdraw()).sub(
+                    antePool.totalPaidOut())
             )
             {
                 return false;
