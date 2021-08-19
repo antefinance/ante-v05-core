@@ -21,6 +21,7 @@ contract AnteDummyTest is AnteTest("I an a dummy") {
 
     constructor () {
         protocolName = "Dummy";
+        // setting this var to an address for front-end development
         testedContracts = [wBTCAddr];
     }
     

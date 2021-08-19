@@ -14,10 +14,11 @@ pragma solidity ^0.7.0;
 import "../AntePool.sol";
 import "../AnteTest.sol";
 
-// Ante Test to check if contract state matches Eth balance state in pool
-contract AnteAnteTest is AnteTest("Ante Test checks contract state to match Eth balance") { 
+// Ante Test to check if Ante pol contract state matches eth balance
+contract AntePoolTest is AnteTest("Ante Pool contract state matches eth balance") { 
 
     constructor () {
+        // NB: this points to ante pools deployed on rinkeby, will need to change for mainnet deploy
         testedContracts = [
             0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512,
             0x5FC8d32690cc91D4c39d9d3abcBD16989F875707,
@@ -44,21 +45,6 @@ contract AnteAnteTest is AnteTest("Ante Test checks contract state to match Eth 
             }
         }
         return true;
-
-        // Not failed
-        // contract address value >= challenger + staker + withdraw - totalPaidOut
-        // Failed
-        // contract address value >= challenger + staker + withdraw - totalPaidOut
-
-        // empty
-        // only challenger
-        // only staker
-        // both challenger, staker
-        // unstake some challenger
-        // unstake some staker
-        // after 1 day, after withdraw happened
-        // right after testFailed
-        // after challenger claim their portion
 
     }
 }
