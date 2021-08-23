@@ -1,28 +1,26 @@
-import chalk from "chalk";
+import chalk from 'chalk';
 
 export interface TestPoolDeployment {
-  test: any,
-  pool: any
+  test: any;
+  pool: any;
 }
 
 export async function deployContract(hre: any, contractName: string, args: any[]): Promise<any> {
-
   const [deployer] = await hre.ethers.getSigners();
 
-  console.log("Deploying contract ", chalk.red(contractName), "from deployer ", chalk.magenta(deployer.address));
+  console.log('Deploying contract ', chalk.red(contractName), 'from deployer ', chalk.magenta(deployer.address));
 
   let factory = await hre.ethers.getContractFactory(contractName);
 
   const contract = await factory.deploy(...args);
   await contract.deployed();
 
-  console.log("Contract deployed to", chalk.magenta(contract.address));
+  console.log('Contract deployed to', chalk.magenta(contract.address));
 
   return contract;
 }
 
 export async function deployTestAndPool(hre: any, testContractName: string, testArgs: any[]): Promise<any> {
-
   const testContract = await deployContract(hre, testContractName, testArgs);
   const testName = await testContract.testName();
 
@@ -30,18 +28,12 @@ export async function deployTestAndPool(hre: any, testContractName: string, test
 
   return {
     test: testContract,
-    pool: poolContract
-  }
-
-
+    pool: poolContract,
+  };
 }
 
 export async function mineBlocks(hre: any, numBlocks: number): Promise<any> {
   for (let i = 0; i < numBlocks; i++) {
-    await hre.network.provider.send("evm_mine");
+    await hre.network.provider.send('evm_mine');
   }
-
-
-
-
 }
