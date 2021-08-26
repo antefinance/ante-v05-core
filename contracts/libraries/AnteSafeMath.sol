@@ -106,7 +106,6 @@ library AnteSafeMath {
         return result;
     }
 
-
     // ==================== CUSTOM ADDITIONS ======================
     /**
      * @notice All uint number values provided to and used in the protocol will use this value as "one"

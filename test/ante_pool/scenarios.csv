@@ -1,0 +1,20 @@
+scenarioName,actionType,amount,signer,check_s0,check_s1,check_s2,check_s3,check_c0,check_c1,check_c2,check_c3
+1 staker,STAKE,1.0,0,1.0,,,,,,,
+,ADVANCE_BLOCKS,1.0,,1.0,,,,,,,
+,UNSTAKE,0.25,0,0.75,,,,,,,
+,STAKE,0.75,0,1.5,,,,,,,
+,STAKE,0.75,0,2.25,,,,,,,
+,UNSTAKE,2.0,0,0.25,,,,,,,
+,UNSTAKE,0.25,0,0.0,,,,,,,
+,,,,,,,,,,,
+1 staker + 1 counterstaker,STAKE,1.0,0,1.0,,,,,,,
+,COUNTERSTAKE,1.0,1,1.0,0.0,,,0.0,1.0,,
+,ADVANCE_BLOCKS,1.0,,1.0000001,0.0,,,0.0,0.9999999,,
+,ADVANCE_BLOCKS,1.0,,1.00000019999999,0.0,,,0.0,0.99999980000001,,
+,COUNTERUNSTAKE,0.999999700000029999,1,1.00000029999997,0.0,,,0.0,0.0,,
+,UNSTAKE,1.00000029999997,0,0.0,0.0,,,0.0,0.0,,
+,,,,,,,,,,,
+2 staker + 2 counterstaker,STAKE,1.0,0,1.0,,,,,,,
+,COUNTERSTAKE,1.0,1,1.0,0.0,,,0.0,1.0,,
+,STAKE,2.0,2,1.0000001,0.0,2.0,,0.0,0.9999999,0.0,0.0
+,COUNTERSTAKE,2.0,3,1.000000133333332222,0.0,2.000000066666657777,,0.0,0.99999980000001,0.0,2.0

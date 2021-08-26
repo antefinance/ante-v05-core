@@ -1,10 +1,13 @@
 /* eslint no-use-before-define: "warn" */
 import chalk from 'chalk';
 import hre from 'hardhat';
-import { mineBlocks, deployTestAndPool } from './helpers';
+import { mineBlocks, deployTestAndPool, deployContract } from './helpers';
 
 const main = async () => {
   console.log('\n\n 📡 Creating Mock data...\n');
+
+  console.log('Deploying pool factory... \n');
+  const poolFactory = await deployContract(hre, 'AntePoolFactory', []);
 
   const signers = await hre.ethers.getSigners();
 
@@ -12,7 +15,7 @@ const main = async () => {
   const twoETH = oneETH.mul(2);
   const threeETH = oneETH.mul(3);
 
-  let { test, pool } = await deployTestAndPool(hre, 'AnteOddBlockTest', []);
+  let { test, pool } = await deployTestAndPool(hre, poolFactory, 'AnteOddBlockTest', []);
   await test.setWillTest(true);
 
   await pool.connect(signers[1]).stake(true, { value: twoETH });
@@ -25,7 +28,7 @@ const main = async () => {
     chalk.cyan('This test can be made to fail if checkTest is called on an even block (just call it twice in a row)')
   );
 
-  ({ test, pool } = await deployTestAndPool(hre, 'AnteRevertingTest', []));
+  ({ test, pool } = await deployTestAndPool(hre, poolFactory, 'AnteRevertingTest', []));
   await pool.connect(signers[3]).stake(true, { value: twoETH });
   await pool.connect(signers[4]).stake(false, { value: oneETH });
   await pool.connect(signers[5]).stake(true, { value: threeETH });
@@ -39,7 +42,7 @@ const main = async () => {
 
   console.log('This test is', chalk.magenta('failing'), '. Fail triggered by', chalk.cyan(signers[3].address));
 
-  ({ pool } = await deployTestAndPool(hre, 'AnteDummyTest', []));
+  ({ pool } = await deployTestAndPool(hre, poolFactory, 'AnteDummyTest', []));
 
   await pool.connect(signers[6]).stake(true, { value: twoETH });
   await pool.connect(signers[7]).stake(false, { value: oneETH });

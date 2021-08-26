@@ -2,25 +2,28 @@
 import chalk from 'chalk';
 import hre from 'hardhat';
 
-import { deployTestAndPool } from './helpers';
+import { deployContract, deployTestAndPool } from './helpers';
 
 const main = async () => {
   const network = hre.network.name;
 
   console.log('Deploying to network', chalk.red(network));
 
+  console.log('Deploying pool factory... \n');
+  const poolFactory = await deployContract(hre, 'AntePoolFactory', []);
+
   for (let i = 0; i < 3; i++) {
-    let { test } = await deployTestAndPool(hre, 'AnteOddBlockTest', []);
+    let { test } = await deployTestAndPool(hre, poolFactory, 'AnteOddBlockTest', []);
     await test.setWillTest(true);
   }
 
   for (let i = 0; i < 2; i++) {
-    let { test } = await deployTestAndPool(hre, 'AnteRevertingTest', []);
+    let { test } = await deployTestAndPool(hre, poolFactory, 'AnteRevertingTest', []);
     await test.setWillRevert(true);
   }
 
   for (let i = 0; i < 2; i++) {
-    await deployTestAndPool(hre, 'AnteDummyTest', []);
+    await deployTestAndPool(hre, poolFactory, 'AnteDummyTest', []);
   }
 };
 

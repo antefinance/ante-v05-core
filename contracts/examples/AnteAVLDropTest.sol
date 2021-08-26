@@ -20,27 +20,27 @@ contract AnteAVLDropTest is AnteTest("Ante Doesnt Lose 99% of its AVL") {
 
     uint256 public totalAVL;
     uint256 public avlThreshold;
-    
+
     // Array of contract addresses to test should be passed in when creating
-    constructor (address[] memory _testedContracts) {
+    constructor(address[] memory _testedContracts) {
         protocolName = "Ante Finance";
         testedContracts = _testedContracts;
 
         // Loop over address array and sum up total AVL
-        for (uint i = 0; i < testedContracts.length; i++) {
+        for (uint256 i = 0; i < testedContracts.length; i++) {
             totalAVL = totalAVL.add(testedContracts[i].balance);
         }
-        
+
         // Calculate test failure threshold using 99% drop in total AVL
         avlThreshold = totalAVL.div(100);
     }
-    
+
     function checkTestPasses() public view override returns (bool) {
         uint256 currentAVL;
 
         // Sum up current AVL across tested contracts
         // TODO: to exclude failed tests or no?
-        for (uint i = 0; i < testedContracts.length; i++) {
+        for (uint256 i = 0; i < testedContracts.length; i++) {
             currentAVL = currentAVL.add(testedContracts[i].balance);
         }
 

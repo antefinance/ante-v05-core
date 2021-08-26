@@ -13,8 +13,7 @@ pragma solidity ^0.7.0;
 
 import "../AnteTest.sol";
 
-contract AnteAlwaysFailTest is AnteTest("Test Always Fails") { 
-
+contract AnteAlwaysFailTest is AnteTest("Test Always Fails") {
     function checkTestPasses() public override returns (bool) {
         return false;
     }

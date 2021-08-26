@@ -17,7 +17,6 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "./interfaces/IAnteTest.sol";
 import "./libraries/IterableSet.sol";
 import "./libraries/AnteSafeMath.sol";
-import "hardhat/console.sol";
 
 contract AntePool {
     using SafeMath for uint256;
@@ -25,8 +24,7 @@ contract AntePool {
     using IterableAddressSetUtils for IterableAddressSetUtils.IterableAddressSet;
     using AnteSafeMath for uint256;
 
-
-    // Info for a single user.
+    // Info for a single user
     struct UserInfo {
         // How much ETH this user deposited.
         uint256 startAmount;
@@ -54,7 +52,7 @@ contract AntePool {
     }
 
     struct ChallengerEligibilityInfo {
-       //used when test fails to determine which challengers should receive payout
+        //used when test fails to determine which challengers should receive payout
         //i.e., those which haven't staked within 12 blocks prior to test failure
         mapping(address => uint256) lastStakedBlock;
         uint256 eligibleAmount;
@@ -71,11 +69,10 @@ contract AntePool {
         uint256 amount;
     }
 
-
     // Test for settling this pool.
     IAnteTest public anteTest;
-    // Test name.
-    string public testName;
+    // AntePoolFactory contract
+    address public factory;
 
     // Whether the test has failed.
     bool public pendingFailure;
@@ -108,7 +105,6 @@ contract AntePool {
     // time after initiating withdraw before staker can finally withdraw capital
     uint256 constant UNSTAKE_DELAY = 24 hours;
 
-
     // Info for the staking side.
     PoolSideInfo public stakingInfo;
     // Info for the challengerstaking side.
@@ -126,32 +122,31 @@ contract AntePool {
     event Stake(address staker, uint256 amount, bool isChallenger);
     event Unstake(address staker, uint256 amount, bool isChallenger);
     event TestChecked(address checker);
-  	event FailureOccurred(address checker);
-  	event ClaimPaid(address claimer, uint256 amount);
+    event FailureOccurred(address checker);
+    event ClaimPaid(address claimer, uint256 amount);
     event WithdrawStake(address staker, uint256 amount);
-
-    // NOTE: saves contract size by not copying this implementation and the error string in to
-    // every function that uses it, only a jump op to this code
-    function _testNotFailed() internal {
-        require(!pendingFailure, "ANTE: Test already failed.");
-    }
+    event CancelWithdraw(address staker, uint256 amount);
 
     modifier testNotFailed() {
         _testNotFailed();
         _;
     }
 
-    constructor(IAnteTest _anteTest, string memory _testName) {
+    constructor() {
+        factory = msg.sender;
+    }
+
+    function initialize(IAnteTest _anteTest) external {
         // check that testAddr is a contract
         require(address(_anteTest).isContract(), "ANTE: AnteTest must be a smart contract");
 
         anteTest = _anteTest;
         // check that anteTest has checkTestPasses function and that it currently passes
-        //console.log("Ante checktestpasses result", anteTest.checkTestPasses());
-        require(anteTest.checkTestPasses(),
-                "ANTE: AnteTest either does not implement checkTestPasses or test currently fails");
+        require(
+            anteTest.checkTestPasses(),
+            "ANTE: AnteTest either does not implement checkTestPasses or test currently fails"
+        );
 
-        testName = _testName;
         stakingInfo.decayMultiplier = AnteSafeMath.ONE;
         challengerInfo.decayMultiplier = AnteSafeMath.ONE;
         lastUpdateBlock = block.number;
@@ -177,11 +172,6 @@ contract AntePool {
         return eligibilityInfo.eligibleAmount;
     }
 
-    function getVerifierBounty() public view returns (uint256) {
-        uint256 totalStake = stakingInfo.totalAmount.add(withdrawInfo.totalAmount);
-        return totalStake.mul(VERIFIER_BOUNTY).div(100);
-    }
-
     // get challenger payout, if called before test failure returns an estimate
     function getChallengerPayout(address challenger) external view returns (uint256) {
         UserInfo storage user = challengerInfo.userInfo[challenger];
@@ -202,9 +192,7 @@ contract AntePool {
     function getStoredBalance(address _user, bool isChallenger) external view returns (uint256) {
         (uint256 decayMultiplierThisUpdate, uint256 decayThisUpdate) = _computeDecay();
 
-        UserInfo storage user = isChallenger
-            ? challengerInfo.userInfo[_user]
-            : stakingInfo.userInfo[_user];
+        UserInfo storage user = isChallenger ? challengerInfo.userInfo[_user] : stakingInfo.userInfo[_user];
 
         if (user.startAmount == 0) return 0;
 
@@ -213,13 +201,11 @@ contract AntePool {
         uint256 decayMultiplier;
 
         if (isChallenger) {
-            decayMultiplier = challengerInfo.decayMultiplier.mul(
-                decayMultiplierThisUpdate).div(1e18);
+            decayMultiplier = challengerInfo.decayMultiplier.mul(decayMultiplierThisUpdate).div(1e18);
         } else {
             uint256 totalStaked = stakingInfo.totalAmount;
             uint256 totalStakedNew = totalStaked.add(decayThisUpdate);
-            decayMultiplier = stakingInfo.decayMultiplier.mul(
-                totalStakedNew).div(totalStaked);
+            decayMultiplier = stakingInfo.decayMultiplier.mul(totalStakedNew).div(totalStaked);
         }
 
         return user.startAmount.mulDiv(decayMultiplier, user.startDecayMultiplier);
@@ -231,19 +217,22 @@ contract AntePool {
 
     function getPendingWithdrawAllowedTime(address _user) external view returns (uint256) {
         UserUnstakeInfo storage user = withdrawInfo.userUnstakeInfo[_user];
-        require(user.amount > 0, 'ANTE: nothing to withdraw');
+        require(user.amount > 0, "ANTE: nothing to withdraw");
 
         return user.lastUnstakeTimestamp.add(UNSTAKE_DELAY);
     }
 
-    function getVerifyTestAllowedBlock(address _user) external view returns (uint256) {
+    function getCheckTestAllowedBlock(address _user) external view returns (uint256) {
         return eligibilityInfo.lastStakedBlock[_user].add(CHALLENGER_BLOCK_DELAY);
     }
 
     function getUserStartAmount(address _user, bool isChallenger) external view returns (uint256) {
-        return isChallenger
-            ? challengerInfo.userInfo[_user].startAmount
-            : stakingInfo.userInfo[_user].startAmount;
+        return isChallenger ? challengerInfo.userInfo[_user].startAmount : stakingInfo.userInfo[_user].startAmount;
+    }
+
+    function getVerifierBounty() public view returns (uint256) {
+        uint256 totalStake = stakingInfo.totalAmount.add(withdrawInfo.totalAmount);
+        return totalStake.mul(VERIFIER_BOUNTY).div(100);
     }
 
     /*****************************************************
@@ -252,7 +241,7 @@ contract AntePool {
 
     /// Stake `amount` on the side given by `isChallenger`.
     function stake(bool isChallenger) external payable testNotFailed {
-        uint amount = msg.value;
+        uint256 amount = msg.value;
         require(amount > 0, "ANTE: Cannot stake zero");
 
         updateDecay();
@@ -312,7 +301,7 @@ contract AntePool {
         UserInfo storage user = side.userInfo[msg.sender];
 
         uint256 amount = _storedBalance(user, side);
-        require(amount > 0, 'ANTE: Nothing to unstake');
+        require(amount > 0, "ANTE: Nothing to unstake");
 
         _unstake(amount, isChallenger, side, user);
     }
@@ -320,8 +309,10 @@ contract AntePool {
     function withdrawStake() external testNotFailed {
         UserUnstakeInfo storage unstakeUser = withdrawInfo.userUnstakeInfo[msg.sender];
 
-        require(unstakeUser.lastUnstakeTimestamp < block.timestamp - UNSTAKE_DELAY,
-                "ANTE: Staker must wait 24 hours after initiating withdraw to withdraw stake");
+        require(
+            unstakeUser.lastUnstakeTimestamp < block.timestamp - UNSTAKE_DELAY,
+            "ANTE: Staker must wait 24 hours after initiating withdraw to withdraw stake"
+        );
         require(unstakeUser.amount > 0, "ANTE: Nothing to withdraw");
 
         uint256 amount = unstakeUser.amount;
@@ -333,15 +324,41 @@ contract AntePool {
         emit WithdrawStake(msg.sender, amount);
     }
 
+    // cancel pending withdraw initiated by staker
+    function cancelPendingWithdraw() external testNotFailed {
+        UserUnstakeInfo storage unstakeUser = withdrawInfo.userUnstakeInfo[msg.sender];
+
+        require(unstakeUser.amount > 0, "ANTE: No pending withdraw balance");
+        uint256 amount = unstakeUser.amount;
+        unstakeUser.amount = 0;
+
+        updateDecay();
+
+        UserInfo storage user = stakingInfo.userInfo[msg.sender];
+        if (user.startAmount > 0) {
+            user.startAmount = amount.add(_storedBalance(user, stakingInfo));
+        } else {
+            user.startAmount = amount;
+            stakingInfo.numUsers = stakingInfo.numUsers.add(1);
+        }
+        stakingInfo.totalAmount = stakingInfo.totalAmount.add(amount);
+        user.startDecayMultiplier = stakingInfo.decayMultiplier;
+
+        withdrawInfo.totalAmount = withdrawInfo.totalAmount.sub(amount);
+
+        emit CancelWithdraw(msg.sender, amount);
+    }
+
     /// Run this AnteTestPool's test, triggering a payout if the test fails.
     function checkTest() public {
         if (pendingFailure) return;
 
         require(challengers.exists(msg.sender), "ANTE: Only challengers can checkTest");
-        require(block.number.sub(eligibilityInfo.lastStakedBlock[msg.sender]) > CHALLENGER_BLOCK_DELAY,
-                "ANTE: must wait 12 blocks after challenging to call checkTest");
+        require(
+            block.number.sub(eligibilityInfo.lastStakedBlock[msg.sender]) > CHALLENGER_BLOCK_DELAY,
+            "ANTE: must wait 12 blocks after challenging to call checkTest"
+        );
 
-        require(numTimesVerified < type(uint64).max);
         numTimesVerified = numTimesVerified.add(1);
         lastVerifiedBlock = block.number;
         emit TestChecked(msg.sender);
@@ -447,10 +464,7 @@ contract AntePool {
     }
 
     // function shared by getStoredBalance view function and internal decay computation
-    function _computeDecay() internal view returns (
-        uint256 decayMultiplierThisUpdate,
-        uint256 decayThisUpdate
-    ) {
+    function _computeDecay() internal view returns (uint256 decayMultiplierThisUpdate, uint256 decayThisUpdate) {
         decayThisUpdate = 0;
         decayMultiplierThisUpdate = AnteSafeMath.ONE;
 
@@ -478,7 +492,7 @@ contract AntePool {
         //   totalChallengerStaked = totalChallengerStaked - decayThisUpdate
         uint256 decayRateThisUpdate = DECAY_RATE_PER_BLOCK.mul(numBlocks);
 
-         // failsafe to avoid underblow when calculating decayMultiplierThisUpdate
+        // failsafe to avoid underflow when calculating decayMultiplierThisUpdate
         if (decayRateThisUpdate >= AnteSafeMath.ONE) {
             decayMultiplierThisUpdate = 0;
             decayThisUpdate = totalChallengerStaked;
@@ -492,18 +506,17 @@ contract AntePool {
     // calculates total amount of challenger capital eligible for payout
     // any challenger which stakes within 12 blocks prior to test failure
     // will not get a payout but will be able to withdraw their capital (minus decay)
-    // TODO: any way to gas optimize this?
     function _calculateChallengerEligibility() internal {
-        uint cutoff_block = failedBlock.sub(CHALLENGER_BLOCK_DELAY);
-        for (uint i = 0; i < challengers.addresses.length; i++) {
+        uint256 cutoffBlock = failedBlock.sub(CHALLENGER_BLOCK_DELAY);
+        for (uint256 i = 0; i < challengers.addresses.length; i++) {
             address challenger = challengers.addresses[i];
-            if (eligibilityInfo.lastStakedBlock[challenger] < cutoff_block) {
-
+            if (eligibilityInfo.lastStakedBlock[challenger] < cutoffBlock) {
                 // NOTE: this would be a lot simpler if you used solidity 8, which is probably stable by now
                 // eligibilityInfo.eligibleAmount +=
                 //    _storedBalance(challengerInfo.userInfo[challenger], challengerInfo);
                 eligibilityInfo.eligibleAmount = eligibilityInfo.eligibleAmount.add(
-                    _storedBalance(challengerInfo.userInfo[challenger], challengerInfo));
+                    _storedBalance(challengerInfo.userInfo[challenger], challengerInfo)
+                );
             }
         }
     }
@@ -517,27 +530,20 @@ contract AntePool {
         }
     }
 
-    function _calculateChallengerPayout(
-        UserInfo storage user,
-        address challenger
-    ) internal view returns (uint256) {
+    function _calculateChallengerPayout(UserInfo storage user, address challenger) internal view returns (uint256) {
         // Calculate this user's challengerstaking balance.
         uint256 amount = _storedBalance(user, challengerInfo);
         // Calculate how much of the staking pool this user gets, and add that
         // to the user's challengerstaking balance.
         if (eligibilityInfo.lastStakedBlock[challenger] < failedBlock.sub(CHALLENGER_BLOCK_DELAY)) {
-            amount = amount.add(
-                amount.mulDiv(_remainingStake, eligibilityInfo.eligibleAmount));
+            amount = amount.add(amount.mulDiv(_remainingStake, eligibilityInfo.eligibleAmount));
         }
 
         return challenger == verifier ? amount.add(_bounty) : amount;
     }
 
     /// Get the amount held by `user`, including accrued decay up to `lastUpdateBlock`.
-    function _storedBalance(
-        UserInfo storage user,
-        PoolSideInfo storage side
-    ) internal view returns (uint256) {
+    function _storedBalance(UserInfo storage user, PoolSideInfo storage side) internal view returns (uint256) {
         if (user.startAmount == 0) return 0;
 
         require(user.startDecayMultiplier > 0, "ANTE: Invalid startDecayMultiplier");
@@ -550,7 +556,13 @@ contract AntePool {
         to.transfer(_min(amount, address(this).balance));
     }
 
-    function _min(uint a, uint b) internal pure returns (uint) {
+    function _min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
+    }
+
+    // NOTE: saves contract size by not copying this implementation and the error string in to
+    // every function that uses it, only a jump op to this code
+    function _testNotFailed() internal {
+        require(!pendingFailure, "ANTE: Test already failed.");
     }
 }
