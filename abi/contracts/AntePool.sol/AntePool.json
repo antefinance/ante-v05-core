@@ -1,19 +1,27 @@
 [
   {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
-        "internalType": "contract IAnteTest",
-        "name": "_anteTest",
+        "indexed": false,
+        "internalType": "address",
+        "name": "staker",
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "_testName",
-        "type": "string"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
+    "name": "CancelWithdraw",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -144,6 +152,13 @@
   },
   {
     "inputs": [],
+    "name": "cancelPendingWithdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "challengerInfo",
     "outputs": [
       {
@@ -194,6 +209,19 @@
   },
   {
     "inputs": [],
+    "name": "factory",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "failedBlock",
     "outputs": [
       {
@@ -214,6 +242,25 @@
       }
     ],
     "name": "getChallengerPayout",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
+    "name": "getCheckTestAllowedBlock",
     "outputs": [
       {
         "internalType": "uint256",
@@ -378,20 +425,14 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_user",
+        "internalType": "contract IAnteTest",
+        "name": "_anteTest",
         "type": "address"
       }
     ],
-    "name": "getVerifyTestAllowedBlock",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -490,19 +531,6 @@
         "internalType": "uint256",
         "name": "decayMultiplier",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "testName",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
       }
     ],
     "stateMutability": "view",

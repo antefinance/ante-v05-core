@@ -1,31 +1,30 @@
-
 /* eslint no-use-before-define: "warn" */
-import chalk from "chalk";
-import hre from "hardhat";
+import chalk from 'chalk';
+import hre from 'hardhat';
 
-import { deployTestAndPool } from './helpers';
-
+import { deployContract, deployTestAndPool } from './helpers';
 
 const main = async () => {
-
   const network = hre.network.name;
 
   console.log('Deploying to network', chalk.red(network));
 
-  for (let i = 0; i < 3; i++) { 
-    let { test } = await deployTestAndPool(hre, "AnteOddBlockTest", []);
+  console.log('Deploying pool factory... \n');
+  const poolFactory = await deployContract(hre, 'AntePoolFactory', []);
+
+  for (let i = 0; i < 3; i++) {
+    let { test } = await deployTestAndPool(hre, poolFactory, 'AnteOddBlockTest', []);
     await test.setWillTest(true);
   }
 
-  for (let i = 0; i < 2; i++) { 
-    let { test } = await deployTestAndPool(hre, "AnteRevertingTest", []);
+  for (let i = 0; i < 2; i++) {
+    let { test } = await deployTestAndPool(hre, poolFactory, 'AnteRevertingTest', []);
     await test.setWillRevert(true);
   }
 
-  for (let i = 0; i < 2; i++) { 
-    await deployTestAndPool(hre, "AnteDummyTest", []);
+  for (let i = 0; i < 2; i++) {
+    await deployTestAndPool(hre, poolFactory, 'AnteDummyTest', []);
   }
-
 };
 
 main()
