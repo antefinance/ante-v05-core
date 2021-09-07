@@ -3,7 +3,7 @@
 pragma solidity >=0.7.0;
 
 // modified from library for performing overflow-safe math, courtesy of DappHub (https://github.com/dapphub/ds-math)
-
+// taken with <3 from https://github.com/Uniswap/uniswap-v3-core/blob/main/contracts/libraries/FullMath.sol
 library AnteSafeMath {
     // The following is copied from Uniswap v3 under the MIT license
     /// @notice Calculates floor(a×b÷denominator) with full precision. Throws if result overflows a uint256 or denominator == 0
@@ -107,10 +107,9 @@ library AnteSafeMath {
     }
 
     // ==================== CUSTOM ADDITIONS ======================
+
     /**
      * @notice All uint number values provided to and used in the protocol will use this value as "one"
-     *
-     * The number one throughout the Hue Protocol.
      */
     uint256 public constant ONE = 1e18;
 

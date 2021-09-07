@@ -1,5 +1,24 @@
 [
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "testAddr",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "testPool",
+        "type": "address"
+      }
+    ],
+    "name": "AntePoolCreated",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
 // ┏━━━┓━━━━━┏┓━━━━━━━━━┏━━━┓━━━━━━━━━━━━━━━━━━━━━━━
 // ┃┏━┓┃━━━━┏┛┗┓━━━━━━━━┃┏━━┛━━━━━━━━━━━━━━━━━━━━━━━
 // ┃┗━┛┃┏━┓━┗┓┏┛┏━━┓━━━━┃┗━━┓┏┓┏━┓━┏━━┓━┏━┓━┏━━┓┏━━┓
@@ -7,20 +9,17 @@
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// SPDX-License-Identifier: MIT
-
 pragma solidity ^0.7.0;
 
 import "./AntePool.sol";
 import "./interfaces/IAnteTest.sol";
+import "./interfaces/IAntePoolFactory.sol";
 
-contract AntePoolFactory {
-    mapping(address => address) public poolMap;
-    address[] public allPools;
+contract AntePoolFactory is IAntePoolFactory {
+    mapping(address => address) public override poolMap;
+    address[] public override allPools;
 
-    event AntePoolCreated(address indexed testAddr, address indexed testPool);
-
-    function createPool(address testAddr) external returns (address testPool) {
+    function createPool(address testAddr) external override returns (address testPool) {
         require(testAddr != address(0), "Ante: test address is 0");
         require(poolMap[testAddr] == address(0), "Ante: pool already created");
 

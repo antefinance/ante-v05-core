@@ -11,8 +11,18 @@
 
 pragma solidity ^0.7.0;
 
+import "./IAnteTest.sol";
+
 interface IAntePool {
-    function initialize(address _anteTest) external;
+    event Stake(address indexed staker, uint256 amount, bool indexed isChallenger);
+    event Unstake(address indexed staker, uint256 amount, bool indexed isChallenger);
+    event TestChecked(address indexed checker);
+    event FailureOccurred(address indexed checker);
+    event ClaimPaid(address indexed claimer, uint256 amount);
+    event WithdrawStake(address indexed staker, uint256 amount);
+    event CancelWithdraw(address indexed staker, uint256 amount);
+
+    function initialize(IAnteTest _anteTest) external;
 
     function cancelPendingWithdraw() external;
 
@@ -20,7 +30,7 @@ interface IAntePool {
 
     function claim() external;
 
-    function stake(bool isChallenger) external;
+    function stake(bool isChallenger) external payable;
 
     function unstake(uint256 amount, bool isChallenger) external;
 
@@ -30,7 +40,7 @@ interface IAntePool {
 
     function withdrawStake() external;
 
-    function anteTest() external view returns (address);
+    function anteTest() external view returns (IAnteTest);
 
     function challengerInfo()
         external
@@ -67,7 +77,7 @@ interface IAntePool {
 
     function getVerifierBounty() external view returns (uint256);
 
-    function getVerifyTestAllowedBlock(address _user) external view returns (uint256);
+    function getCheckTestAllowedBlock(address _user) external view returns (uint256);
 
     function lastUpdateBlock() external view returns (uint256);
 
