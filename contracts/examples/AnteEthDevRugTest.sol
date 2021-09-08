@@ -13,7 +13,7 @@ pragma solidity ^0.7.0;
 
 import "../AnteTest.sol";
 
-// Ante Test to check if EthDev multisig "rugs" 99% of its ETH
+// Ante Test to check if EthDev multisig "rugs" 99% of its ETH (as of May 2021)
 // NOTE: this is JUST ILLUSTRATIVE; the multisig CAN MOVE FUNDS FOR ANY REASON
 contract AnteEthDevRugTest is AnteTest("EthDev MultiSig Doesnt Rug 99% of its ETH Test") {
     // https://etherscan.io/address/0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae

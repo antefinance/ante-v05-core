@@ -33,9 +33,10 @@ contract AntePool is IAntePool {
         // entry block), stored as a multiplier expressed as an 18-decimal
         // mantissa. For example, if this side of the pool accrued a decay of
         // 20% during this time period, we'd store 1.2e18 (staking side) or
-        // 0.8e18 (challengerstaking side).
+        // 0.8e18 (challenger side).
         uint256 startDecayMultiplier;
     }
+
     // Info for one side of the pool.
     struct PoolSideInfo {
         mapping(address => UserInfo) userInfo;
@@ -48,13 +49,13 @@ contract AntePool is IAntePool {
         // lastUpdateBlock), stored as a multiplier expressed as an 18-decimal
         // mantissa. For example, if this side of the pool accrued a decay of
         // 20% during this time period, we'd store 1.2e18 (staking side) or
-        // 0.8e18 (challengerstaking side).
+        // 0.8e18 (challenger side).
         uint256 decayMultiplier;
     }
 
     struct ChallengerEligibilityInfo {
-        //used when test fails to determine which challengers should receive payout
-        //i.e., those which haven't staked within 12 blocks prior to test failure
+        // Used when test fails to determine which challengers should receive payout
+        // i.e., those which haven't staked within 12 blocks prior to test failure
         mapping(address => uint256) lastStakedBlock;
         uint256 eligibleAmount;
     }
@@ -83,36 +84,37 @@ contract AntePool is IAntePool {
     // Block number that test failed on (if failed)
     uint256 public override failedBlock;
     uint256 public override lastVerifiedBlock;
-    address public override verifier; // address which caused test failure
-    // internal convenience variables set on test failure
+    // Address which caused test failure
+    address public override verifier;
+    // Internal convenience variables set on test failure
     uint256 internal _bounty;
     uint256 internal _remainingStake;
 
-    // How many challengerstakers have been paid out.
+    // How many challengers have been paid out.
     uint256 public override numPaidOut;
     // Amount that's been paid out in claims.
     uint256 public override totalPaidOut;
 
-    // Amount of decay to charge each challengerstaked ETH per block.
+    // Amount of decay to charge each challengers ETH per block.
     // 100 gwei decay per block per ETH is ~20-25% decay per year
     uint256 constant DECAY_RATE_PER_BLOCK = 100 gwei;
 
-    // number of blocks a challenger must be staking before they are eligible for payout
+    // Number of blocks a challenger must be staking before they are eligible for payout
     // on test failure
     uint8 constant CHALLENGER_BLOCK_DELAY = 12;
-    // minimum challenger stake is 0.01 ETH
+    // Minimum challenger stake is 0.01 ETH
     uint256 constant MIN_CHALLENGER_STAKE = 1e16;
 
-    // time after initiating withdraw before staker can finally withdraw capital
+    // Time after initiating withdraw before staker can finally withdraw capital
     uint256 constant UNSTAKE_DELAY = 24 hours;
 
     // Info for the staking side.
     PoolSideInfo public override stakingInfo;
-    // Info for the challengerstaking side.
+    // Info for the challenger side.
     PoolSideInfo public override challengerInfo;
     // Info storing challenger eligibility for payout
     ChallengerEligibilityInfo public override eligibilityInfo;
-    // all addresses currently staking on challenger side
+    // All addresses currently staking on challenger side
     IterableAddressSetUtils.IterableAddressSet challengers;
     // Info for stakers trying to withdraw
     StakerWithdrawInfo public override withdrawInfo;
@@ -130,11 +132,11 @@ contract AntePool is IAntePool {
     }
 
     function initialize(IAnteTest _anteTest) external override {
-        // check that testAddr is a contract
+        // Check that testAddr is a contract
         require(address(_anteTest).isContract(), "ANTE: AnteTest must be a smart contract");
 
         anteTest = _anteTest;
-        // check that anteTest has checkTestPasses function and that it currently passes
+        // Check that anteTest has checkTestPasses function and that it currently passes
         require(
             anteTest.checkTestPasses(),
             "ANTE: AnteTest either does not implement checkTestPasses or test currently fails"
@@ -165,7 +167,7 @@ contract AntePool is IAntePool {
         return eligibilityInfo.eligibleAmount;
     }
 
-    // get challenger payout, if called before test failure returns an estimate
+    // Get challenger payout, if called before test failure returns an estimate
     function getChallengerPayout(address challenger) external view override returns (uint256) {
         UserInfo storage user = challengerInfo.userInfo[challenger];
         require(user.startAmount > 0, "ANTE: No Challenger Staking balance");
@@ -181,7 +183,7 @@ contract AntePool is IAntePool {
         }
     }
 
-    // get amount held by user up until current block, view function
+    // Get amount held by user up until current block, view function
     function getStoredBalance(address _user, bool isChallenger) external view override returns (uint256) {
         (uint256 decayMultiplierThisUpdate, uint256 decayThisUpdate) = _computeDecay();
 
@@ -232,7 +234,7 @@ contract AntePool is IAntePool {
      * ================ USER INTERFACE ================= *
      *****************************************************/
 
-    /// Stake `amount` on the side given by `isChallenger`.
+    // Stake `amount` on the side given by `isChallenger`.
     function stake(bool isChallenger) external payable override testNotFailed {
         uint256 amount = msg.value;
         require(amount > 0, "ANTE: Cannot stake zero");
@@ -244,8 +246,8 @@ contract AntePool is IAntePool {
             require(amount >= MIN_CHALLENGER_STAKE, "ANTE: Challenger must stake more than 0.01 ETH");
             side = challengerInfo;
 
-            // record info for future use
-            // challengers are not eligible for rewards if challenging within 12 block window of test failure
+            // Record challenger info for future use
+            // Challengers are not eligible for rewards if challenging within 12 block window of test failure
             challengers.insert(msg.sender);
             eligibilityInfo.lastStakedBlock[msg.sender] = block.number;
         } else {
@@ -273,7 +275,7 @@ contract AntePool is IAntePool {
         emit Stake(msg.sender, amount, isChallenger);
     }
 
-    /// Unstake `amount` on the side given by `isChallenger`.
+    // Unstake `amount` on the side given by `isChallenger`.
     function unstake(uint256 amount, bool isChallenger) external override testNotFailed {
         require(amount > 0, "ANTE: Cannot unstake 0.");
 
@@ -285,7 +287,7 @@ contract AntePool is IAntePool {
         _unstake(amount, isChallenger, side, user);
     }
 
-    // unstake entire user balance
+    // Unstake entire user balance.
     function unstakeAll(bool isChallenger) external override testNotFailed {
         updateDecay();
 
@@ -299,6 +301,7 @@ contract AntePool is IAntePool {
         _unstake(amount, isChallenger, side, user);
     }
 
+    // Initiates 24 hour lockout for withdraw stake
     function withdrawStake() external override testNotFailed {
         UserUnstakeInfo storage unstakeUser = withdrawInfo.userUnstakeInfo[msg.sender];
 
@@ -317,7 +320,7 @@ contract AntePool is IAntePool {
         emit WithdrawStake(msg.sender, amount);
     }
 
-    // cancel pending withdraw initiated by staker
+    // Cancel pending withdraw initiated by staker
     function cancelPendingWithdraw() external override testNotFailed {
         UserUnstakeInfo storage unstakeUser = withdrawInfo.userUnstakeInfo[msg.sender];
 
@@ -342,7 +345,7 @@ contract AntePool is IAntePool {
         emit CancelWithdraw(msg.sender, amount);
     }
 
-    /// Run this AntePool's test, triggering a payout if the test fails.
+    // Run this AntePool's Ante Test, triggering a payout if the Ante Test fails.
     function checkTest() public override {
         if (pendingFailure) return;
 
@@ -371,6 +374,7 @@ contract AntePool is IAntePool {
         }
     }
 
+    // Claims rewards for challengers for a failed test
     function claim() public override {
         require(pendingFailure, "ANTE: Test has not failed");
 
@@ -432,7 +436,7 @@ contract AntePool is IAntePool {
             user.startDecayMultiplier = 0;
             side.numUsers = side.numUsers.sub(1);
 
-            // remove from set of existing challengers
+            // Remove from set of existing challengers
             if (isChallenger) challengers.remove(msg.sender);
         } else {
             require(amount <= prevAmount, "ANTE: Withdraw request exceeds balance.");
@@ -445,7 +449,7 @@ contract AntePool is IAntePool {
 
         if (isChallenger) _safeTransfer(msg.sender, amount);
         else {
-            // just initiate the withdraw if staker
+            // Just initiate the withdraw if staker
             UserUnstakeInfo storage unstakeUser = withdrawInfo.userUnstakeInfo[msg.sender];
             unstakeUser.lastUnstakeTimestamp = block.timestamp;
             unstakeUser.amount = unstakeUser.amount.add(amount);
@@ -456,7 +460,7 @@ contract AntePool is IAntePool {
         emit Unstake(msg.sender, amount, isChallenger);
     }
 
-    // function shared by getStoredBalance view function and internal decay computation
+    // Function shared by getStoredBalance view function and internal decay computation
     function _computeDecay() internal view returns (uint256 decayMultiplierThisUpdate, uint256 decayThisUpdate) {
         decayThisUpdate = 0;
         decayMultiplierThisUpdate = AnteSafeMath.ONE;
@@ -468,7 +472,7 @@ contract AntePool is IAntePool {
         if (pendingFailure) {
             return (decayMultiplierThisUpdate, decayThisUpdate);
         }
-        // If we have no stakers or challengerstakers, don't charge any decay.
+        // If we have no stakers or challengers, don't charge any decay.
         uint256 totalStaked = stakingInfo.totalAmount;
         uint256 totalChallengerStaked = challengerInfo.totalAmount;
         if (totalStaked == 0 || totalChallengerStaked == 0) {
@@ -477,7 +481,7 @@ contract AntePool is IAntePool {
 
         uint256 numBlocks = block.number.sub(lastUpdateBlock);
 
-        // Update the new accrued decay amounts for challengerstakers.
+        // Update the new accrued decay amounts for challengers.
         //   decayRateThisUpdate = DECAY_RATE_PER_BLOCK * numBlocks
         //   decayMultiplierThisUpdate = 1 - decayRateThisUpdate
         //   decayMultiplier_challenger = decayMultiplier_challenger * decayMultiplierThisUpdate
@@ -485,28 +489,24 @@ contract AntePool is IAntePool {
         //   totalChallengerStaked = totalChallengerStaked - decayThisUpdate
         uint256 decayRateThisUpdate = DECAY_RATE_PER_BLOCK.mul(numBlocks);
 
-        // failsafe to avoid underflow when calculating decayMultiplierThisUpdate
+        // Failsafe to avoid underflow when calculating decayMultiplierThisUpdate
         if (decayRateThisUpdate >= AnteSafeMath.ONE) {
             decayMultiplierThisUpdate = 0;
             decayThisUpdate = totalChallengerStaked;
         } else {
             decayMultiplierThisUpdate = AnteSafeMath.ONE.sub(decayRateThisUpdate);
-            // NOTE: This does the mulDiv and divides by the mantissa
             decayThisUpdate = totalChallengerStaked._mul(decayRateThisUpdate);
         }
     }
 
-    // calculates total amount of challenger capital eligible for payout
-    // any challenger which stakes within 12 blocks prior to test failure
+    // Calculates total amount of challenger capital eligible for payout.
+    // Any challenger which stakes within 12 blocks prior to test failure
     // will not get a payout but will be able to withdraw their capital (minus decay)
     function _calculateChallengerEligibility() internal {
         uint256 cutoffBlock = failedBlock.sub(CHALLENGER_BLOCK_DELAY);
         for (uint256 i = 0; i < challengers.addresses.length; i++) {
             address challenger = challengers.addresses[i];
             if (eligibilityInfo.lastStakedBlock[challenger] < cutoffBlock) {
-                // NOTE: this would be a lot simpler if you used solidity 8, which is probably stable by now
-                // eligibilityInfo.eligibleAmount +=
-                //    _storedBalance(challengerInfo.userInfo[challenger], challengerInfo);
                 eligibilityInfo.eligibleAmount = eligibilityInfo.eligibleAmount.add(
                     _storedBalance(challengerInfo.userInfo[challenger], challengerInfo)
                 );
@@ -514,7 +514,7 @@ contract AntePool is IAntePool {
         }
     }
 
-    // checks an ante test on an associated contract and also returns false if checkTestPasses reverts
+    // Checks an Ante Test on an associated contract and also returns false if checkTestPasses reverts
     function _checkTestNoRevert() internal returns (bool) {
         try anteTest.checkTestPasses() returns (bool passes) {
             return passes;
@@ -524,10 +524,10 @@ contract AntePool is IAntePool {
     }
 
     function _calculateChallengerPayout(UserInfo storage user, address challenger) internal view returns (uint256) {
-        // Calculate this user's challengerstaking balance.
+        // Calculate this user's challenging balance.
         uint256 amount = _storedBalance(user, challengerInfo);
         // Calculate how much of the staking pool this user gets, and add that
-        // to the user's challengerstaking balance.
+        // to the user's challenging balance.
         if (eligibilityInfo.lastStakedBlock[challenger] < failedBlock.sub(CHALLENGER_BLOCK_DELAY)) {
             amount = amount.add(amount.mulDiv(_remainingStake, eligibilityInfo.eligibleAmount));
         }
@@ -535,7 +535,7 @@ contract AntePool is IAntePool {
         return challenger == verifier ? amount.add(_bounty) : amount;
     }
 
-    /// Get the amount held by `user`, including accrued decay up to `lastUpdateBlock`.
+    // Get the amount held by `user`, including accrued decay up to `lastUpdateBlock`.
     function _storedBalance(UserInfo storage user, PoolSideInfo storage side) internal view returns (uint256) {
         if (user.startAmount == 0) return 0;
 
@@ -553,8 +553,6 @@ contract AntePool is IAntePool {
         return a < b ? a : b;
     }
 
-    // NOTE: saves contract size by not copying this implementation and the error string in to
-    // every function that uses it, only a jump op to this code
     function _testNotFailed() internal {
         require(!pendingFailure, "ANTE: Test already failed.");
     }
