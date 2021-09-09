@@ -22,7 +22,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "i",
         "type": "uint256"
       }
     ],
@@ -60,7 +60,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "testAddr",
         "type": "address"
       }
     ],
