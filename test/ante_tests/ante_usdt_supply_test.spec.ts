@@ -19,7 +19,7 @@ describe('AnteUSDTSupplyTest', function () {
       'AnteUSDTSupplyTest',
       deployer
     )) as AnteUSDTSupplyTest__factory;
-    test = await factory.deploy();
+    test = await factory.deploy('0xdAC17F958D2ee523a2206206994597C13D831ec7');
     await test.deployed();
   });
 

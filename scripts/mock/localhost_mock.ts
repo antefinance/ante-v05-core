@@ -1,7 +1,7 @@
 /* eslint no-use-before-define: "warn" */
 import chalk from 'chalk';
 import hre from 'hardhat';
-import { mineBlocks, deployTestAndPool, deployContract } from './helpers';
+import { mineBlocks, deployTestAndPool, deployContract } from '../helpers';
 
 const main = async () => {
   console.log('\n\n 📡 Creating Mock data...\n');

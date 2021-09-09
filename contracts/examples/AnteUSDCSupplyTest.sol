@@ -14,25 +14,31 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../AnteTest.sol";
 
-// Ante Test to check USDC supply never exceeds M2 (as of May 2021)
+/// @title Ante Test to check USDC supply never exceeds M2 (as of May 2021)
+/// @dev As of 2021-05-31, est. M2 monetary supply is ~$20.1086 Trillion USD
+/// From https://www.federalreserve.gov/releases/h6/current/default.htm
+/// We represent the threshold as 20.1 Trillion * (10 ** usdt Decimals)
+/// Or, more simply, 20.1 Trillion = 20,100 Billion
 contract AnteUSDCSupplyTest is AnteTest("ERC20 USD Coin (USDC) supply doesn't exceed M2, ~$20T") {
     // https://etherscan.io/address/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48#code
-    address public constant USDCAddr = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address public immutable usdcAddr;
 
-    // As of 2021-05-31, est. M2 monetary supply is ~$20.1086 Trillion USD
-    // From https://www.federalreserve.gov/releases/h6/current/default.htm
-    // We represent the threshold as 20.1 Trillion * (10 ** USDC Decimals)
-    // Or, more simply, 20.1 Trillion = 20,100 Billion
+    ERC20 public usdcToken;
+    uint256 immutable THRESHOLD_SUPPLY;
 
-    ERC20 public USDCToken = ERC20(USDCAddr);
-    uint256 immutable THRESHOLD_SUPPLY = 20100 * (1000 * 1000 * 1000) * (10**USDCToken.decimals());
+    /// @param _usdcAddr usdc contract address (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 on mainnet)
+    constructor(address _usdcAddr) {
+        usdcAddr = _usdcAddr;
+        usdcToken = ERC20(_usdcAddr);
+        THRESHOLD_SUPPLY = 20100 * (1000 * 1000 * 1000) * (10**usdcToken.decimals());
 
-    constructor() {
         protocolName = "USD Coin";
-        testedContracts = [USDCAddr];
+        testedContracts = [_usdcAddr];
     }
 
+    /// @notice test to check if usdc token supply is greater than M2 money supply
+    /// @return true if usdc token supply is over M2
     function checkTestPasses() public view override returns (bool) {
-        return (USDCToken.totalSupply() <= THRESHOLD_SUPPLY);
+        return (usdcToken.totalSupply() <= THRESHOLD_SUPPLY);
     }
 }

@@ -19,7 +19,7 @@ describe('AnteETH2DepositTest', function () {
       'AnteETH2DepositTest',
       deployer
     )) as AnteETH2DepositTest__factory;
-    test = await factory.deploy();
+    test = await factory.deploy('0x00000000219ab540356cBB839Cbe05303d7705Fa');
     await test.deployed();
   });
 

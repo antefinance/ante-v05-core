@@ -10,7 +10,6 @@ import 'hardhat-gas-reporter';
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
 import 'solidity-coverage';
-import 'hardhat-interface-generator';
 
 const config: HardhatUserConfig = {
   networks: {
@@ -19,7 +18,7 @@ const config: HardhatUserConfig = {
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
-      accounts: [process.env.PRIVATE_KEY || ''],
+      accounts: [process.env.RINKEBY_PRIVATE_KEY || ''],
     },
     hardhat: {
       forking: {

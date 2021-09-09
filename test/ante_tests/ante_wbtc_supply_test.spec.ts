@@ -1,6 +1,5 @@
 import hre from 'hardhat';
 const { waffle } = hre;
-const { deployContract } = waffle;
 
 import { AnteWBTCSupplyTest__factory, AnteWBTCSupplyTest } from '../../typechain';
 
@@ -23,7 +22,7 @@ describe('AnteWBTCSupplyTest', function () {
       'AnteWBTCSupplyTest',
       deployer
     )) as AnteWBTCSupplyTest__factory;
-    test = await factory.deploy();
+    test = await factory.deploy('0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599');
     await test.deployed();
   });
 

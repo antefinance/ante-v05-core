@@ -16,7 +16,7 @@ coverage.json
 .env.local
 .env.dev
 .env.production
-.swp
+*.swp
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

@@ -16,7 +16,7 @@ describe('AnteETHDevRugTest', function () {
 
     const [deployer] = waffle.provider.getWallets();
     const factory = (await hre.ethers.getContractFactory('AnteEthDevRugTest', deployer)) as AnteEthDevRugTest__factory;
-    test = await factory.deploy();
+    test = await factory.deploy('0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae');
     await test.deployed();
   });
 
