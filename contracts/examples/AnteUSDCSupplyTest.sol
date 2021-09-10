@@ -22,15 +22,15 @@ import "../AnteTest.sol";
 contract AnteUSDCSupplyTest is AnteTest("ERC20 USD Coin (USDC) supply doesn't exceed M2, ~$20T") {
     // https://etherscan.io/address/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48#code
     address public immutable usdcAddr;
+    uint256 public immutable thresholdSupply;
 
     ERC20 public usdcToken;
-    uint256 immutable THRESHOLD_SUPPLY;
 
     /// @param _usdcAddr usdc contract address (0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 on mainnet)
     constructor(address _usdcAddr) {
         usdcAddr = _usdcAddr;
         usdcToken = ERC20(_usdcAddr);
-        THRESHOLD_SUPPLY = 20100 * (1000 * 1000 * 1000) * (10**usdcToken.decimals());
+        thresholdSupply = 20100 * (1000 * 1000 * 1000) * (10**usdcToken.decimals());
 
         protocolName = "USD Coin";
         testedContracts = [_usdcAddr];
@@ -39,6 +39,6 @@ contract AnteUSDCSupplyTest is AnteTest("ERC20 USD Coin (USDC) supply doesn't ex
     /// @notice test to check if usdc token supply is greater than M2 money supply
     /// @return true if usdc token supply is over M2
     function checkTestPasses() public view override returns (bool) {
-        return (usdcToken.totalSupply() <= THRESHOLD_SUPPLY);
+        return (usdcToken.totalSupply() <= thresholdSupply);
     }
 }

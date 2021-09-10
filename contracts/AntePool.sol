@@ -84,7 +84,7 @@ contract AntePool is IAntePool {
     /// @inheritdoc IAntePool
     uint256 public override numTimesVerified;
     /// @dev Percent of staked amount alloted for verifier bounty
-    uint256 constant VERIFIER_BOUNTY = 5;
+    uint256 public constant VERIFIER_BOUNTY = 5;
     /// @inheritdoc IAntePool
     uint256 public override failedBlock;
     /// @inheritdoc IAntePool
@@ -102,21 +102,21 @@ contract AntePool is IAntePool {
 
     /// @dev Amount of decay to charge each challengers ETH per block
     /// 100 gwei decay per block per ETH is ~20-25% decay per year
-    uint256 constant DECAY_RATE_PER_BLOCK = 100 gwei;
+    uint256 public constant DECAY_RATE_PER_BLOCK = 100 gwei;
 
     /// @dev Number of blocks a challenger must be staking before they are
     /// eligible for paytout on test failure
-    uint8 constant CHALLENGER_BLOCK_DELAY = 12;
+    uint8 public constant CHALLENGER_BLOCK_DELAY = 12;
 
     /// @dev Minimum challenger stake is 0.01 ETH
-    uint256 constant MIN_CHALLENGER_STAKE = 1e16;
+    uint256 public constant MIN_CHALLENGER_STAKE = 1e16;
 
     /// @dev Time after initiating withdraw before staker can finally withdraw capital,
     /// starts when staker initiates the unstake action
-    uint256 constant UNSTAKE_DELAY = 24 hours;
+    uint256 public constant UNSTAKE_DELAY = 24 hours;
 
     /// @dev convenience constant for 1 ether worth of wei
-    uint256 public constant ONE = 1e18;
+    uint256 private constant ONE = 1e18;
 
     /// @inheritdoc IAntePool
     PoolSideInfo public override stakingInfo;
@@ -125,7 +125,7 @@ contract AntePool is IAntePool {
     /// @inheritdoc IAntePool
     ChallengerEligibilityInfo public override eligibilityInfo;
     /// @dev All addresses currently challenging the Ante Test
-    IterableAddressSetUtils.IterableAddressSet challengers;
+    IterableAddressSetUtils.IterableAddressSet private challengers;
     /// @inheritdoc IAntePool
     StakerWithdrawInfo public override withdrawInfo;
 
@@ -151,107 +151,11 @@ contract AntePool is IAntePool {
 
         anteTest = _anteTest;
         // Check that anteTest has checkTestPasses function and that it currently passes
-        require(
-            anteTest.checkTestPasses(),
-            "ANTE: AnteTest either does not implement checkTestPasses or test currently fails"
-        );
+        require(anteTest.checkTestPasses(), "ANTE: AnteTest does not implement checkTestPasses or test fails");
 
         stakingInfo.decayMultiplier = ONE;
         challengerInfo.decayMultiplier = ONE;
         lastUpdateBlock = block.number;
-    }
-
-    /*****************************************************
-     * ================ VIEW FUNCTIONS ================= *
-     *****************************************************/
-
-    /// @inheritdoc IAntePool
-    function getTotalChallengerStaked() external view override returns (uint256) {
-        return challengerInfo.totalAmount;
-    }
-
-    /// @inheritdoc IAntePool
-    function getTotalStaked() external view override returns (uint256) {
-        return stakingInfo.totalAmount;
-    }
-
-    /// @inheritdoc IAntePool
-    function getTotalPendingWithdraw() external view override returns (uint256) {
-        return withdrawInfo.totalAmount;
-    }
-
-    /// @inheritdoc IAntePool
-    function getTotalChallengerEligibleBalance() external view override returns (uint256) {
-        return eligibilityInfo.eligibleAmount;
-    }
-
-    /// @inheritdoc IAntePool
-    function getChallengerPayout(address challenger) external view override returns (uint256) {
-        UserInfo storage user = challengerInfo.userInfo[challenger];
-        require(user.startAmount > 0, "ANTE: No Challenger Staking balance");
-
-        // If called before test failure returns an estimate
-        if (pendingFailure) {
-            return _calculateChallengerPayout(user, challenger);
-        } else {
-            uint256 amount = _storedBalance(user, challengerInfo);
-            uint256 bounty = getVerifierBounty();
-            uint256 totalStake = stakingInfo.totalAmount.add(withdrawInfo.totalAmount);
-
-            return amount.add(amount.mulDiv(totalStake.sub(bounty), challengerInfo.totalAmount));
-        }
-    }
-
-    /// @inheritdoc IAntePool
-    function getStoredBalance(address _user, bool isChallenger) external view override returns (uint256) {
-        (uint256 decayMultiplierThisUpdate, uint256 decayThisUpdate) = _computeDecay();
-
-        UserInfo storage user = isChallenger ? challengerInfo.userInfo[_user] : stakingInfo.userInfo[_user];
-
-        if (user.startAmount == 0) return 0;
-
-        require(user.startDecayMultiplier > 0, "ANTE: Invalid startDecayMultiplier");
-
-        uint256 decayMultiplier;
-
-        if (isChallenger) {
-            decayMultiplier = challengerInfo.decayMultiplier.mul(decayMultiplierThisUpdate).div(1e18);
-        } else {
-            uint256 totalStaked = stakingInfo.totalAmount;
-            uint256 totalStakedNew = totalStaked.add(decayThisUpdate);
-            decayMultiplier = stakingInfo.decayMultiplier.mul(totalStakedNew).div(totalStaked);
-        }
-
-        return user.startAmount.mulDiv(decayMultiplier, user.startDecayMultiplier);
-    }
-
-    /// @inheritdoc IAntePool
-    function getPendingWithdrawAmount(address _user) external view override returns (uint256) {
-        return withdrawInfo.userUnstakeInfo[_user].amount;
-    }
-
-    /// @inheritdoc IAntePool
-    function getPendingWithdrawAllowedTime(address _user) external view override returns (uint256) {
-        UserUnstakeInfo storage user = withdrawInfo.userUnstakeInfo[_user];
-        require(user.amount > 0, "ANTE: nothing to withdraw");
-
-        return user.lastUnstakeTimestamp.add(UNSTAKE_DELAY);
-    }
-
-    /// @inheritdoc IAntePool
-    function getCheckTestAllowedBlock(address _user) external view override returns (uint256) {
-        return eligibilityInfo.lastStakedBlock[_user].add(CHALLENGER_BLOCK_DELAY);
-    }
-
-    /// @inheritdoc IAntePool
-    function getUserStartAmount(address _user, bool isChallenger) external view override returns (uint256) {
-        return isChallenger ? challengerInfo.userInfo[_user].startAmount : stakingInfo.userInfo[_user].startAmount;
-    }
-
-    /// @inheritdoc IAntePool
-    function getVerifierBounty() public view override returns (uint256) {
-        uint256 totalStake = stakingInfo.totalAmount.add(withdrawInfo.totalAmount);
-        return totalStake.mul(VERIFIER_BOUNTY).div(100);
     }
 
     /*****************************************************
@@ -333,7 +237,7 @@ contract AntePool is IAntePool {
 
         require(
             unstakeUser.lastUnstakeTimestamp < block.timestamp - UNSTAKE_DELAY,
-            "ANTE: Staker must wait 24 hours after initiating withdraw to withdraw stake"
+            "ANTE: must wait 24 hours to withdraw stake"
         );
         require(unstakeUser.amount > 0, "ANTE: Nothing to withdraw");
 
@@ -441,6 +345,99 @@ contract AntePool is IAntePool {
 
         stakingInfo.decayMultiplier = stakingInfo.decayMultiplier.mulDiv(totalStakedNew, totalStaked);
         stakingInfo.totalAmount = totalStakedNew;
+    }
+
+    /*****************************************************
+     * ================ VIEW FUNCTIONS ================= *
+     *****************************************************/
+
+    /// @inheritdoc IAntePool
+    function getTotalChallengerStaked() external view override returns (uint256) {
+        return challengerInfo.totalAmount;
+    }
+
+    /// @inheritdoc IAntePool
+    function getTotalStaked() external view override returns (uint256) {
+        return stakingInfo.totalAmount;
+    }
+
+    /// @inheritdoc IAntePool
+    function getTotalPendingWithdraw() external view override returns (uint256) {
+        return withdrawInfo.totalAmount;
+    }
+
+    /// @inheritdoc IAntePool
+    function getTotalChallengerEligibleBalance() external view override returns (uint256) {
+        return eligibilityInfo.eligibleAmount;
+    }
+
+    /// @inheritdoc IAntePool
+    function getChallengerPayout(address challenger) external view override returns (uint256) {
+        UserInfo storage user = challengerInfo.userInfo[challenger];
+        require(user.startAmount > 0, "ANTE: No Challenger Staking balance");
+
+        // If called before test failure returns an estimate
+        if (pendingFailure) {
+            return _calculateChallengerPayout(user, challenger);
+        } else {
+            uint256 amount = _storedBalance(user, challengerInfo);
+            uint256 bounty = getVerifierBounty();
+            uint256 totalStake = stakingInfo.totalAmount.add(withdrawInfo.totalAmount);
+
+            return amount.add(amount.mulDiv(totalStake.sub(bounty), challengerInfo.totalAmount));
+        }
+    }
+
+    /// @inheritdoc IAntePool
+    function getStoredBalance(address _user, bool isChallenger) external view override returns (uint256) {
+        (uint256 decayMultiplierThisUpdate, uint256 decayThisUpdate) = _computeDecay();
+
+        UserInfo storage user = isChallenger ? challengerInfo.userInfo[_user] : stakingInfo.userInfo[_user];
+
+        if (user.startAmount == 0) return 0;
+
+        require(user.startDecayMultiplier > 0, "ANTE: Invalid startDecayMultiplier");
+
+        uint256 decayMultiplier;
+
+        if (isChallenger) {
+            decayMultiplier = challengerInfo.decayMultiplier.mul(decayMultiplierThisUpdate).div(1e18);
+        } else {
+            uint256 totalStaked = stakingInfo.totalAmount;
+            uint256 totalStakedNew = totalStaked.add(decayThisUpdate);
+            decayMultiplier = stakingInfo.decayMultiplier.mul(totalStakedNew).div(totalStaked);
+        }
+
+        return user.startAmount.mulDiv(decayMultiplier, user.startDecayMultiplier);
+    }
+
+    /// @inheritdoc IAntePool
+    function getPendingWithdrawAmount(address _user) external view override returns (uint256) {
+        return withdrawInfo.userUnstakeInfo[_user].amount;
+    }
+
+    /// @inheritdoc IAntePool
+    function getPendingWithdrawAllowedTime(address _user) external view override returns (uint256) {
+        UserUnstakeInfo storage user = withdrawInfo.userUnstakeInfo[_user];
+        require(user.amount > 0, "ANTE: nothing to withdraw");
+
+        return user.lastUnstakeTimestamp.add(UNSTAKE_DELAY);
+    }
+
+    /// @inheritdoc IAntePool
+    function getCheckTestAllowedBlock(address _user) external view override returns (uint256) {
+        return eligibilityInfo.lastStakedBlock[_user].add(CHALLENGER_BLOCK_DELAY);
+    }
+
+    /// @inheritdoc IAntePool
+    function getUserStartAmount(address _user, bool isChallenger) external view override returns (uint256) {
+        return isChallenger ? challengerInfo.userInfo[_user].startAmount : stakingInfo.userInfo[_user].startAmount;
+    }
+
+    /// @inheritdoc IAntePool
+    function getVerifierBounty() public view override returns (uint256) {
+        uint256 totalStake = stakingInfo.totalAmount.add(withdrawInfo.totalAmount);
+        return totalStake.mul(VERIFIER_BOUNTY).div(100);
     }
 
     /*****************************************************

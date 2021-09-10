@@ -73,7 +73,7 @@ describe('Withdraw Stake and Cancel Withdraw', () => {
     await evmIncreaseTime(constants.ONE_DAY_IN_SECONDS * 0.99);
 
     await expect(pool.connect(staker_2).withdrawStake()).to.be.revertedWith(
-      'ANTE: Staker must wait 24 hours after initiating withdraw to withdraw stake'
+      'ANTE: must wait 24 hours to withdraw stake'
     );
   });
 

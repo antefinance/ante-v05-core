@@ -9,6 +9,8 @@ import 'hardhat-abi-exporter';
 import 'hardhat-gas-reporter';
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-etherscan';
+import '@tenderly/hardhat-tenderly';
 import 'solidity-coverage';
 
 const config: HardhatUserConfig = {
@@ -35,6 +37,9 @@ const config: HardhatUserConfig = {
         //runs: 200,
       },
     },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_KEY,
   },
 };
 

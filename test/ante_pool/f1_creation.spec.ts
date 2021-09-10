@@ -46,7 +46,7 @@ describe('Cannot initialize pools with invalid ante tests', () => {
     const alwaysFailTest = await deployContract(deployer, AnteAlwaysFailTest);
 
     await expect(poolFactory.createPool(alwaysFailTest.address)).to.be.revertedWith(
-      'ANTE: AnteTest either does not implement checkTestPasses or test currently fails'
+      'ANTE: AnteTest does not implement checkTestPasses or test fails'
     );
   });
 
@@ -54,7 +54,7 @@ describe('Cannot initialize pools with invalid ante tests', () => {
     const invalidTest = await deployContract(deployer, AnteInvalidTest);
 
     await expect(poolFactory.createPool(invalidTest.address)).to.be.revertedWith(
-      'ANTE: AnteTest either does not implement checkTestPasses or test currently fails'
+      'ANTE: AnteTest does not implement checkTestPasses or test fails'
     );
   });
 });

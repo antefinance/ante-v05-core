@@ -38,35 +38,18 @@ contract AnteIronPegTest is AnteTest("IRON Peg Holds Test") {
 
     // address which called checkpoint() to prime test
     address public checkpointer;
-    address public constant quickswapPool = 0x2Bbe0F728f4d5821F84eeE0432D2A4be7C0cB7Fc;
+    address public constant QUICKSWAP_POOL = 0x2Bbe0F728f4d5821F84eeE0432D2A4be7C0cB7Fc;
 
     constructor() {
         protocolName = "Iron Finance";
         testedContracts = [
-            quickswapPool,
+            QUICKSWAP_POOL,
             0xD86b5923F3AD7b585eD81B448170ae026c65ae9a, //IRON token
             0x4a812C5EE699A40530eB49727E1818D43964324e, //treasury
             0xEc12B5d70a84895F819FE037dc4EABDbD24707f2, //Collateral Pool
             0xC7b1F244397e2157036a89CE0D58F3A467A7Ed2F, // USDC minting pool
             0xD078B62f8D9f5F69a6e6343e3e1eC9059770B830
         ]; //Zap pool
-    }
-
-    function checkpoint() public {
-        require(
-            UniswapV2OracleLibrary.currentBlockTimestamp() - lastCheckpointTime > MAX_PERIOD,
-            "Cannot take a checkpoint within 24 hours of another checkpoint"
-        );
-
-        checkpointer = msg.sender;
-        (lastCumPrice, , lastCheckpointTime) = UniswapV2OracleLibrary.currentCumulativePrices(quickswapPool);
-    }
-
-    function uncheckpoint() external {
-        require(checkpointer == msg.sender, "Only checkpointer can reset checkpoint");
-
-        lastCheckpointTime = 0;
-        lastCumPrice = 0;
     }
 
     function testPrimed() external view returns (bool) {
@@ -85,7 +68,7 @@ contract AnteIronPegTest is AnteTest("IRON Peg Holds Test") {
         }
 
         (uint256 currentCumPrice, , uint32 currentTimestamp) = UniswapV2OracleLibrary.currentCumulativePrices(
-            quickswapPool
+            QUICKSWAP_POOL
         );
 
         // overflow is desired
@@ -96,6 +79,23 @@ contract AnteIronPegTest is AnteTest("IRON Peg Holds Test") {
 
         //_twap is a q112.112 fixed point
         return _twap.decode();
+    }
+
+    function uncheckpoint() external {
+        require(checkpointer == msg.sender, "Only checkpointer can reset checkpoint");
+
+        lastCheckpointTime = 0;
+        lastCumPrice = 0;
+    }
+
+    function checkpoint() public {
+        require(
+            UniswapV2OracleLibrary.currentBlockTimestamp() - lastCheckpointTime > MAX_PERIOD,
+            "Cannot take a checkpoint within 24 hours of another checkpoint"
+        );
+
+        checkpointer = msg.sender;
+        (lastCumPrice, , lastCheckpointTime) = UniswapV2OracleLibrary.currentCumulativePrices(QUICKSWAP_POOL);
     }
 
     // in order to trigger a failing test, challengers must first 'prime' by calling checkTestPasses or checkpoint once

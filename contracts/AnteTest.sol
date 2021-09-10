@@ -26,7 +26,8 @@ abstract contract AnteTest is IAnteTest {
     /// @inheritdoc IAnteTest
     address[] public override testedContracts;
 
-    /// @dev testedContracts and protocolName are optional parameters which should be set in the constructor of your AnteTest
+    /// @dev testedContracts and protocolName are optional parameters which should
+    /// be set in the constructor of your AnteTest
     /// @param _testName The name of the Ante Test
     constructor(string memory _testName) {
         testAuthor = msg.sender;

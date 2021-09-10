@@ -22,9 +22,9 @@ import "../AnteTest.sol";
 contract AnteUSDTSupplyTest is AnteTest("ERC20 Tether (USDT) supply doesn't exceed M2, ~$20T") {
     // https://etherscan.io/address/0xdac17f958d2ee523a2206206994597c13d831ec7#code
     address public immutable usdtAddr;
+    uint256 public immutable thresholdSupply;
 
     ERC20 public usdtToken;
-    uint256 immutable THRESHOLD_SUPPLY;
 
     /// @param _usdtAddr USDT contract address (0xdac17f958d2ee523a2206206994597c13d831ec7 on mainnet)
     constructor(address _usdtAddr) {
@@ -33,12 +33,12 @@ contract AnteUSDTSupplyTest is AnteTest("ERC20 Tether (USDT) supply doesn't exce
 
         protocolName = "Tether";
         testedContracts = [_usdtAddr];
-        THRESHOLD_SUPPLY = 20100 * (1000 * 1000 * 1000) * (10**usdtToken.decimals());
+        thresholdSupply = 20100 * (1000 * 1000 * 1000) * (10**usdtToken.decimals());
     }
 
     /// @notice test to check if USDT token supply is greater than M2 money supply
     /// @return true if USDT token supply is over M2
     function checkTestPasses() public view override returns (bool) {
-        return (usdtToken.totalSupply() <= THRESHOLD_SUPPLY);
+        return (usdtToken.totalSupply() <= thresholdSupply);
     }
 }
