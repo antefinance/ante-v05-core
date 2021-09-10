@@ -31,7 +31,7 @@ contract AnteEthDevRugTest is AnteTest("EthDev MultiSig Doesnt Rug 99% of its ET
 
     /// @notice test to check balance of eth multisig
     /// @return true if eth multisig has over 4000 ETH
-    function checkTestPasses() public view override returns (bool) {
+    function checkTestPasses() external view override returns (bool) {
         return ethDevAddr.balance >= RUG_THRESHOLD;
     }
 }

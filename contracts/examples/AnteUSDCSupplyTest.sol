@@ -38,7 +38,7 @@ contract AnteUSDCSupplyTest is AnteTest("ERC20 USD Coin (USDC) supply doesn't ex
 
     /// @notice test to check if usdc token supply is greater than M2 money supply
     /// @return true if usdc token supply is over M2
-    function checkTestPasses() public view override returns (bool) {
+    function checkTestPasses() external view override returns (bool) {
         return (usdcToken.totalSupply() <= thresholdSupply);
     }
 }

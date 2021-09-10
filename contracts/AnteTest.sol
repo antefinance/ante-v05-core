@@ -41,5 +41,5 @@ abstract contract AnteTest is IAnteTest {
     }
 
     /// @inheritdoc IAnteTest
-    function checkTestPasses() public virtual override returns (bool) {}
+    function checkTestPasses() external virtual override returns (bool) {}
 }

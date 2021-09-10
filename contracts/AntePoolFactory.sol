@@ -39,9 +39,11 @@ contract AntePoolFactory is IAntePoolFactory {
             testPool := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
         }
 
-        AntePool(testPool).initialize(anteTest);
         poolMap[testAddr] = testPool;
         allPools.push(testPool);
+
+        AntePool(testPool).initialize(anteTest);
+
         emit AntePoolCreated(testAddr, testPool);
     }
 }

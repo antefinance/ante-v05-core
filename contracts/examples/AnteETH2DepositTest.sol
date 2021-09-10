@@ -33,7 +33,7 @@ contract AnteETH2DepositTest is AnteTest("ETH2 beacon depositcontract doesn't lo
 
     /// @notice test to check balance of eth2 deposit address
     /// @return true if deposit address balance is over 500 ETH
-    function checkTestPasses() public view override returns (bool) {
+    function checkTestPasses() external view override returns (bool) {
         return (depositContractAddr.balance >= THRESHOLD_BALANCE);
     }
 }

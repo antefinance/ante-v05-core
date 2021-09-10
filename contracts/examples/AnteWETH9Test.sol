@@ -33,7 +33,7 @@ contract AnteWETH9Test is AnteTest("Checks WETH9 issued WETH fully backed by ETH
 
     /// @notice test to check WETH token supply against contract balance
     /// @return true if WETH9 token supply equals contract balance
-    function checkTestPasses() public view override returns (bool) {
+    function checkTestPasses() external view override returns (bool) {
         return address(wETH9Token).balance == wETH9Token.totalSupply();
     }
 }

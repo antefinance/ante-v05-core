@@ -38,7 +38,7 @@ contract AnteUSDTSupplyTest is AnteTest("ERC20 Tether (USDT) supply doesn't exce
 
     /// @notice test to check if USDT token supply is greater than M2 money supply
     /// @return true if USDT token supply is over M2
-    function checkTestPasses() public view override returns (bool) {
+    function checkTestPasses() external view override returns (bool) {
         return (usdtToken.totalSupply() <= thresholdSupply);
     }
 }

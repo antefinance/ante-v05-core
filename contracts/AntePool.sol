@@ -146,16 +146,17 @@ contract AntePool is IAntePool {
 
     /// @inheritdoc IAntePool
     function initialize(IAnteTest _anteTest) external override {
-        // Check that testAddr is a contract
+        require(msg.sender == factory, "ANTE: only factory can initialize AntePool");
         require(address(_anteTest).isContract(), "ANTE: AnteTest must be a smart contract");
-
-        anteTest = _anteTest;
-        // Check that anteTest has checkTestPasses function and that it currently passes
-        require(anteTest.checkTestPasses(), "ANTE: AnteTest does not implement checkTestPasses or test fails");
 
         stakingInfo.decayMultiplier = ONE;
         challengerInfo.decayMultiplier = ONE;
         lastUpdateBlock = block.number;
+        anteTest = _anteTest;
+
+        // put below variable initializations to prevent potential reentrancy vulnerabilities
+        // Check that anteTest has checkTestPasses function and that it currently passes
+        require(anteTest.checkTestPasses(), "ANTE: AnteTest does not implement checkTestPasses or test fails");
     }
 
     /*****************************************************
@@ -276,7 +277,7 @@ contract AntePool is IAntePool {
     }
 
     /// @inheritdoc IAntePool
-    function checkTest() public override testNotFailed {
+    function checkTest() external override testNotFailed {
         require(challengers.exists(msg.sender), "ANTE: Only challengers can checkTest");
         require(
             block.number.sub(eligibilityInfo.lastStakedBlock[msg.sender]) > CHALLENGER_BLOCK_DELAY,
@@ -303,7 +304,7 @@ contract AntePool is IAntePool {
     }
 
     /// @inheritdoc IAntePool
-    function claim() public override {
+    function claim() external override {
         require(pendingFailure, "ANTE: Test has not failed");
 
         UserInfo storage user = challengerInfo.userInfo[msg.sender];

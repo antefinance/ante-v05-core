@@ -36,7 +36,7 @@ contract AnteWBTCSupplyTest is AnteTest("Wrapped BTC (WBTC) supply doesn't excee
 
     /// @notice test to check WBTC token supply
     /// @return true if WBTC supply is less than 21 million
-    function checkTestPasses() public view override returns (bool) {
+    function checkTestPasses() external view override returns (bool) {
         return (wBTCToken.totalSupply() <= THRESHOLD_SUPPLY);
     }
 }
