@@ -42,11 +42,10 @@ export const deployConsts: Record<string, DeployConstants> = {
     WBTC: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
   },
   rinkeby: {
-    // TODO: replace w/ rinkeby specific addresses
     WETH: '0xc778417e063141139fce010982780140aa0cd5ab',
     ETH2: '0xc778417e063141139fce010982780140aa0cd5ab', // just need an address with a lot of eth
     USDC: '0x7d66cde53cc0a169cae32712fc48934e610aef14',
-    USDT: '0x3b00ef435fa4fcff5c209a37d1f3dcff37c705ad',
+    USDT: '0xfb1d709cb959ac0ea14cad0927eabc7832e65058',
     ETH_DEV: '0xc778417e063141139fce010982780140aa0cd5ab', // just need an address with a lot of eth
     WBTC: '0x577d296678535e4903d59a4c929b718e1d575e0a',
   },

@@ -27,6 +27,7 @@ const deployLaunchTestsAndPools = async (
     'AnteWETH9Test',
     'AnteEthDevRugTest',
     'AnteWBTCSupplyTest',
+    'AnteRevertingTest',
   ];
 
   for (const testName of launchTests) {
