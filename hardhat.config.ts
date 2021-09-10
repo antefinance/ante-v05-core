@@ -18,6 +18,10 @@ const config: HardhatUserConfig = {
     localhost: {
       url: 'http://localhost:8545',
     },
+    mainnet: {
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
+      accounts: [process.env.MAINNET_PRIVATE_KEY || ''],
+    },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       accounts: [process.env.RINKEBY_PRIVATE_KEY || ''],
@@ -33,8 +37,8 @@ const config: HardhatUserConfig = {
     version: '0.7.6',
     settings: {
       optimizer: {
-        enabled: false,
-        //runs: 200,
+        enabled: true,
+        runs: 10000,
       },
     },
   },
