@@ -67,7 +67,7 @@ describe('Ante Pool Factory', function () {
 
   it('createPool should revert if trying to create a duplicate pool for an ante test', async () => {
     const { test } = deployment.oddBlockDeployment;
-    await expect(poolFactory.createPool(test.address)).to.be.revertedWith('Ante: pool already created');
+    await expect(poolFactory.createPool(test.address)).to.be.revertedWith('ANTE: pool already created');
   });
 
   it('createPool updates allPools and poolMap correctly', async () => {

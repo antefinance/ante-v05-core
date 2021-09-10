@@ -16,16 +16,16 @@ import "@openzeppelin/contracts/utils/Address.sol";
 
 import "./interfaces/IAnteTest.sol";
 import "./libraries/IterableSet.sol";
-import "./libraries/AnteSafeMath.sol";
+import "./libraries/FullMath.sol";
 import "./interfaces/IAntePool.sol";
 
 /// @title Ante V0.5 Ante Pool smart contract
 /// @notice Deploys an Ante Pool and connects with the Ante Test, manages pools and interactions with users
 contract AntePool is IAntePool {
     using SafeMath for uint256;
+    using FullMath for uint256;
     using Address for address;
     using IterableAddressSetUtils for IterableAddressSetUtils.IterableAddressSet;
-    using AnteSafeMath for uint256;
 
     /// @notice Info related to a single user
     struct UserInfo {
@@ -115,6 +115,9 @@ contract AntePool is IAntePool {
     /// starts when staker initiates the unstake action
     uint256 constant UNSTAKE_DELAY = 24 hours;
 
+    /// @dev convenience constant for 1 ether worth of wei
+    uint256 public constant ONE = 1e18;
+
     /// @inheritdoc IAntePool
     PoolSideInfo public override stakingInfo;
     /// @inheritdoc IAntePool
@@ -153,8 +156,8 @@ contract AntePool is IAntePool {
             "ANTE: AnteTest either does not implement checkTestPasses or test currently fails"
         );
 
-        stakingInfo.decayMultiplier = AnteSafeMath.ONE;
-        challengerInfo.decayMultiplier = AnteSafeMath.ONE;
+        stakingInfo.decayMultiplier = ONE;
+        challengerInfo.decayMultiplier = ONE;
         lastUpdateBlock = block.number;
     }
 
@@ -256,7 +259,7 @@ contract AntePool is IAntePool {
      *****************************************************/
 
     /// @inheritdoc IAntePool
-    /// @dev Stake `amount` on the side given by `isChallenger`
+    /// @dev Stake `msg.value` on the side given by `isChallenger`
     function stake(bool isChallenger) external payable override testNotFailed {
         uint256 amount = msg.value;
         require(amount > 0, "ANTE: Cannot stake zero");
@@ -369,9 +372,7 @@ contract AntePool is IAntePool {
     }
 
     /// @inheritdoc IAntePool
-    function checkTest() public override {
-        if (pendingFailure) return;
-
+    function checkTest() public override testNotFailed {
         require(challengers.exists(msg.sender), "ANTE: Only challengers can checkTest");
         require(
             block.number.sub(eligibilityInfo.lastStakedBlock[msg.sender]) > CHALLENGER_BLOCK_DELAY,
@@ -426,8 +427,10 @@ contract AntePool is IAntePool {
         uint256 totalStaked = stakingInfo.totalAmount;
         uint256 totalChallengerStaked = challengerInfo.totalAmount;
 
-        challengerInfo.decayMultiplier = challengerInfo.decayMultiplier._mul(decayMultiplierThisUpdate);
-
+        // update totoal accrued decay amounts for challengers
+        // decayMultiplier for challengers = decayMultiplier for challengers * decayMultiplierThisUpdate
+        // totalChallengerStaked = totalChallengerStaked - decayThisUpdate
+        challengerInfo.decayMultiplier = challengerInfo.decayMultiplier.mulDiv(decayMultiplierThisUpdate, ONE);
         challengerInfo.totalAmount = totalChallengerStaked.sub(decayThisUpdate);
 
         // Update the new accrued decay amounts for stakers.
@@ -499,7 +502,7 @@ contract AntePool is IAntePool {
     /// @return decayThisUpdate amount of challenger value that's decayed in wei
     function _computeDecay() internal view returns (uint256 decayMultiplierThisUpdate, uint256 decayThisUpdate) {
         decayThisUpdate = 0;
-        decayMultiplierThisUpdate = AnteSafeMath.ONE;
+        decayMultiplierThisUpdate = ONE;
 
         if (block.number <= lastUpdateBlock) {
             return (decayMultiplierThisUpdate, decayThisUpdate);
@@ -517,21 +520,19 @@ contract AntePool is IAntePool {
 
         uint256 numBlocks = block.number.sub(lastUpdateBlock);
 
-        // Update the new accrued decay amounts for challengers.
+        // The rest of the function updates the new accrued decay amounts
         //   decayRateThisUpdate = DECAY_RATE_PER_BLOCK * numBlocks
         //   decayMultiplierThisUpdate = 1 - decayRateThisUpdate
-        //   decayMultiplier_challenger = decayMultiplier_challenger * decayMultiplierThisUpdate
         //   decayThisUpdate = totalChallengerStaked * decayRateThisUpdate
-        //   totalChallengerStaked = totalChallengerStaked - decayThisUpdate
         uint256 decayRateThisUpdate = DECAY_RATE_PER_BLOCK.mul(numBlocks);
 
         // Failsafe to avoid underflow when calculating decayMultiplierThisUpdate
-        if (decayRateThisUpdate >= AnteSafeMath.ONE) {
+        if (decayRateThisUpdate >= ONE) {
             decayMultiplierThisUpdate = 0;
             decayThisUpdate = totalChallengerStaked;
         } else {
-            decayMultiplierThisUpdate = AnteSafeMath.ONE.sub(decayRateThisUpdate);
-            decayThisUpdate = totalChallengerStaked._mul(decayRateThisUpdate);
+            decayMultiplierThisUpdate = ONE.sub(decayRateThisUpdate);
+            decayThisUpdate = totalChallengerStaked.mulDiv(decayRateThisUpdate, ONE);
         }
     }
 

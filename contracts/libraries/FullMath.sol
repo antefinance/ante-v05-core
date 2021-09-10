@@ -2,11 +2,16 @@
 
 pragma solidity >=0.7.0;
 
-// modified from library for performing overflow-safe math, courtesy of DappHub (https://github.com/dapphub/ds-math)
 // taken with <3 from https://github.com/Uniswap/uniswap-v3-core/blob/main/contracts/libraries/FullMath.sol
-library AnteSafeMath {
-    // The following is copied from Uniswap v3 under the MIT license
-    /// @notice Calculates floor(a×b÷denominator) with full precision. Throws if result overflows a uint256 or denominator == 0
+// under the MIT license
+/// @title Contains 512-bit math functions
+/// @notice Facilitates multiplication and division that can have overflow of an
+/// intermediate value without any loss of precision
+/// @dev Handles "phantom overflow" i.e., allows multiplication and division
+/// where an intermediate value overflows 256 bits
+library FullMath {
+    /// @notice Calculates floor(a×b÷denominator) with full precision. Throws if result overflows a uint256
+    /// or denominator == 0
     /// @param a The multiplicand
     /// @param b The multiplier
     /// @param denominator The divisor
@@ -104,26 +109,5 @@ library AnteSafeMath {
         // is no longer required.
         result = prod0 * inv;
         return result;
-    }
-
-    // ==================== CUSTOM ADDITIONS ======================
-
-    /**
-     * @notice All uint number values provided to and used in the protocol will use this value as "one"
-     */
-    uint256 public constant ONE = 1e18;
-
-    /**
-     * @notice A divide that properly handles two numbers using ONE as their base.
-     */
-    function _div(uint256 a, uint256 b) internal pure returns (uint256 r) {
-        r = mulDiv(a, ONE, b);
-    }
-
-    /**
-     * @notice A multiply that properly handles two numbers using ONE as their base.
-     */
-    function _mul(uint256 a, uint256 b) internal pure returns (uint256 r) {
-        r = mulDiv(a, b, ONE);
     }
 }

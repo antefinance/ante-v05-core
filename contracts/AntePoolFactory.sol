@@ -27,8 +27,8 @@ contract AntePoolFactory is IAntePoolFactory {
     function createPool(address testAddr) external override returns (address testPool) {
         // Checks that a non-zero AnteTest address is passed in and that
         // an AntePool has not already been created for that AnteTest
-        require(testAddr != address(0), "Ante: test address is 0");
-        require(poolMap[testAddr] == address(0), "Ante: pool already created");
+        require(testAddr != address(0), "ANTE: Test address is 0");
+        require(poolMap[testAddr] == address(0), "ANTE: Pool already created");
 
         IAnteTest anteTest = IAnteTest(testAddr);
 

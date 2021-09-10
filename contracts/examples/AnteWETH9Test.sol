@@ -27,7 +27,7 @@ contract AnteWETH9Test is AnteTest("Checks WETH9 issued WETH fully backed by ETH
         wETH9Addr = _wETH9Addr;
         wETH9Token = IERC20(_wETH9Addr);
 
-        protocolName = "wETH9";
+        protocolName = "WETH9";
         testedContracts = [_wETH9Addr];
     }
 
