@@ -80,7 +80,9 @@ contract AntePool is IAntePool {
     /// @inheritdoc IAntePool
     address public override factory;
     /// @inheritdoc IAntePool
-    bool public override pendingFailure;
+    /// @dev pendingFailure set to true until pool is initialized to avoid
+    /// people staking in uninitialized pools
+    bool public override pendingFailure = true;
     /// @inheritdoc IAntePool
     uint256 public override numTimesVerified;
     /// @dev Percent of staked amount alloted for verifier bounty
@@ -91,14 +93,17 @@ contract AntePool is IAntePool {
     uint256 public override lastVerifiedBlock;
     /// @inheritdoc IAntePool
     address public override verifier;
-    /// @dev Bounty amount, set when test fails
-    uint256 internal _bounty;
-    /// @dev Total staked value, after bounty is removed
-    uint256 internal _remainingStake;
     /// @inheritdoc IAntePool
     uint256 public override numPaidOut;
     /// @inheritdoc IAntePool
     uint256 public override totalPaidOut;
+
+    /// @dev pool can only be initialized once
+    bool internal _initialized = false;
+    /// @dev Bounty amount, set when test fails
+    uint256 internal _bounty;
+    /// @dev Total staked value, after bounty is removed
+    uint256 internal _remainingStake;
 
     /// @dev Amount of decay to charge each challengers ETH per block
     /// 100 gwei decay per block per ETH is ~20-25% decay per year
@@ -138,25 +143,32 @@ contract AntePool is IAntePool {
         _;
     }
 
+    modifier notInitialized() {
+        require(!_initialized, "ANTE: Pool already initialized");
+        _;
+    }
+
     /// @dev Ante Pools are deployed by Ante Pool Factory, and we store
     /// the address of the factory here
     constructor() {
         factory = msg.sender;
-    }
-
-    /// @inheritdoc IAntePool
-    function initialize(IAnteTest _anteTest) external override {
-        require(msg.sender == factory, "ANTE: only factory can initialize AntePool");
-        require(address(_anteTest).isContract(), "ANTE: AnteTest must be a smart contract");
-
         stakingInfo.decayMultiplier = ONE;
         challengerInfo.decayMultiplier = ONE;
         lastUpdateBlock = block.number;
-        anteTest = _anteTest;
+    }
 
-        // put below variable initializations to prevent potential reentrancy vulnerabilities
+    /// @inheritdoc IAntePool
+    function initialize(IAnteTest _anteTest) external override notInitialized {
+        require(msg.sender == factory, "ANTE: only factory can initialize AntePool");
+        require(address(_anteTest).isContract(), "ANTE: AnteTest must be a smart contract");
         // Check that anteTest has checkTestPasses function and that it currently passes
-        require(anteTest.checkTestPasses(), "ANTE: AnteTest does not implement checkTestPasses or test fails");
+        // place check here to minimize reentrancy risk - most external function calls are locked
+        // while pendingFailure is true
+        require(_anteTest.checkTestPasses(), "ANTE: AnteTest does not implement checkTestPasses or test fails");
+
+        _initialized = true;
+        pendingFailure = false;
+        anteTest = _anteTest;
     }
 
     /*****************************************************

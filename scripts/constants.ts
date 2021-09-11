@@ -47,7 +47,7 @@ export const deployConsts: Record<string, DeployConstants> = {
     USDC: '0x7d66cde53cc0a169cae32712fc48934e610aef14',
     USDT: '0xfb1d709cb959ac0ea14cad0927eabc7832e65058',
     ETH_DEV: '0xc778417e063141139fce010982780140aa0cd5ab', // just need an address with a lot of eth
-    WBTC: '0x577d296678535e4903d59a4c929b718e1d575e0a',
+    WBTC: '0xD5D087d31dDcc58c70d0441554dff9C9874c882F', // just a random rinkeby token with 8 decimals and less than 21M supply
   },
   hardhat: {
     // forked mainnet, so can use same config as mainnet

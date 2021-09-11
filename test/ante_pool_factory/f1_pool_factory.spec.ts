@@ -10,6 +10,7 @@ import {
   AnteInvalidTest__factory,
   AnteAlwaysFailTest__factory,
   AntePoolFactory__factory,
+  AnteAlwaysPassTest__factory,
 } from '../../typechain';
 
 import { expect } from 'chai';
@@ -76,5 +77,17 @@ describe('Ante Pool Factory', function () {
     // this is first test/pool created
     expect(await poolFactory.allPools(0)).to.equal(pool.address);
     expect(await poolFactory.poolMap(test.address)).to.equal(pool.address);
+  });
+
+  it('should emit AntePoolCreated event on pool creation', async () => {
+    const factory = (await hre.ethers.getContractFactory(
+      'AnteAlwaysPassTest',
+      deployer
+    )) as AnteAlwaysPassTest__factory;
+
+    const testContract = await factory.deploy();
+    await testContract.deployed();
+
+    await expect(poolFactory.createPool(testContract.address)).to.emit(poolFactory, 'AntePoolCreated');
   });
 });
