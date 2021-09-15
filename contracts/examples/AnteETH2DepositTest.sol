@@ -14,9 +14,9 @@ pragma solidity ^0.7.0;
 import "../AnteTest.sol";
 
 /// @title ETH2 beacon contract doesn't lose 99.99% of its ETH test
-/// @notice Ante Test to check that ETH2 beacon, depositcontract.eth doesn't lose 99.99% of
+/// @notice Ante Test to check that ETH2 beacon depositcontract.eth doesn't lose 99.99% of
 /// its ETH (as of May 2021)
-contract AnteETH2DepositTest is AnteTest("ETH2 beacon depositcontract doesn't lose 99.99% of its ETH") {
+contract AnteETH2DepositTest is AnteTest("ETH2 beacon deposit contract doesn't lose 99.99% of its ETH") {
     // depositcontract.eth, verified on https://ethereum.org/en/eth2/deposit-contract/
     // https://etherscan.io/address/0x00000000219ab540356cBB839Cbe05303d7705Fa
     address public immutable depositContractAddr;

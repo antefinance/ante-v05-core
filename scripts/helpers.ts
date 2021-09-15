@@ -2,7 +2,8 @@ import chalk from 'chalk';
 import fs from 'fs';
 import child_process from 'child_process';
 
-import { Contract } from 'ethers';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import { Contract, BigNumber } from 'ethers';
 
 import * as constants from './constants';
 
@@ -85,6 +86,11 @@ export async function deployTestAndPool(
   };
 }
 
+export async function blockNumber(signer: SignerWithAddress): Promise<number> {
+  // @ts-ignore
+  return (await signer.provider.getBlock('latest')).number;
+}
+
 export async function mineBlocks(hre: any, numBlocks: number): Promise<any> {
   for (let i = 0; i < numBlocks; i++) {
     await hre.network.provider.send('evm_mine');
@@ -112,4 +118,35 @@ export function saveDeployment(file: string, deployment: constants.Deployment): 
 
 export function currentCommitHash(): string {
   return child_process.execSync('git rev-parse HEAD').toString().trim();
+}
+
+export async function calculateGasUsed(txpromise: any): Promise<BigNumber> {
+  const txreceipt = await txpromise.wait();
+  return txreceipt.effectiveGasPrice.mul(txreceipt.cumulativeGasUsed);
+}
+
+export async function distributeETH(
+  amount: BigNumber,
+  from_address: SignerWithAddress,
+  to_addresses: SignerWithAddress[]
+): Promise<void> {
+  for (const receiver of to_addresses) {
+    const balance = await receiver.getBalance();
+    // only send if the account needs balance
+    if (balance.eq(0)) {
+      console.log(`Sending ${amount} wei from ${from_address.address} to ${receiver.address}`);
+      await from_address.sendTransaction({
+        to: receiver.address,
+        value: amount,
+      });
+    }
+  }
+}
+
+export function delay(ms: number): any {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function randomNumber(min: number, max: number): number {
+  return min + Math.random() * (max - min);
 }

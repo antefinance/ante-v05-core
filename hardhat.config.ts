@@ -16,6 +16,10 @@ import 'solidity-coverage';
 const config: HardhatUserConfig = {
   networks: {
     localhost: {
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+        blockNumber: 13089428,
+      },
       url: 'http://localhost:8545',
     },
     mainnet: {
@@ -24,7 +28,9 @@ const config: HardhatUserConfig = {
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
-      accounts: [process.env.RINKEBY_PRIVATE_KEY || ''],
+      accounts: {
+        mnemonic: process.env.RINKEBY_MNEMONIC || '',
+      },
     },
     hardhat: {
       forking: {
