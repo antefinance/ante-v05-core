@@ -289,7 +289,7 @@ const main = async () => {
 
   // distribute eth to testing accounts if needed
   console.log('distributing eth to tester accounts if necessary');
-  await distributeETH(constants.ONE_ETH.div(2), testers[0], testers);
+  await distributeETH(constants.ONE_ETH.div(4), testers[0], testers);
 
   const pools: Contract[] = [];
   for (const p in deployment['testPools']) {

@@ -16,6 +16,8 @@ export async function deployTestPoolAndRecord(
 ): Promise<void> {
   const testContract = await deployContract(hre, testName, args);
 
+  // wait 10 seconds for infura nodes to sync
+  await delay(10000);
   const tx = await poolFactory.createPool(testContract.address);
   const receipt = await tx.wait();
 
@@ -135,10 +137,11 @@ export async function distributeETH(
     // only send if the account needs balance
     if (balance.eq(0)) {
       console.log(`Sending ${amount} wei from ${from_address.address} to ${receiver.address}`);
-      await from_address.sendTransaction({
+      const txpromise = await from_address.sendTransaction({
         to: receiver.address,
         value: amount,
       });
+      await txpromise.wait();
     }
   }
 }
