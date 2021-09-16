@@ -1,0 +1,97 @@
+{
+  "commit": "eaaedaa515523d253db58ba7d0719eb8d9d771c4",
+  "timestamp": 1631737548319,
+  "contracts": {
+    "AntePoolFactory": {
+      "address": "0x5a8b70edfd28A79756B54ed8DbeeE13e566920Aa",
+      "tx": "0x5a845dd49e154f5101dbcd833bc6f19f335540fd326876d7aea3cf83759f6e3d",
+      "args": []
+    }
+  },
+  "testPools": {
+    "AnteETH2DepositTest": {
+      "test": {
+        "address": "0x9B690d2c7CA5411F0f3FDD58A3602A3c4C793Be9",
+        "tx": "0x5d4e2e038d3da23e4d008a0a290506bfeb36be4ea721a95d8f22464da748ea4f",
+        "args": [
+          "0xc778417e063141139fce010982780140aa0cd5ab"
+        ]
+      },
+      "pool": {
+        "address": "0xC9183E91bC2Df3728dB60c466f0A6FD6aBFe6600",
+        "tx": "0x0101ec65675998d722b1788ae894d08f15ce00995aab268068472d3970e77524",
+        "args": []
+      }
+    },
+    "AnteUSDCSupplyTest": {
+      "test": {
+        "address": "0x8Df27b1D10349022fA2b0872974fE3c21F14b6Fb",
+        "tx": "0x9aa8897afb1c964664396f438f9139aa56e233285100d0ffaa0292710e42a76f",
+        "args": [
+          "0x7d66cde53cc0a169cae32712fc48934e610aef14"
+        ]
+      },
+      "pool": {
+        "address": "0x40E9880aAf00A419e6C0f08E82b99088A62Cd02d",
+        "tx": "0x473078db88bc3c1950de8082b075068e5b3785f89369b35da75883325ab4b1b0",
+        "args": []
+      }
+    },
+    "AnteUSDTSupplyTest": {
+      "test": {
+        "address": "0x69a0F06381e228f1a771e77456317b6Ea7BEA9bc",
+        "tx": "0xc128c1eaabfbd63950d78e89ead23ea43593970bd628e29e826915a18bb26b07",
+        "args": [
+          "0xfb1d709cb959ac0ea14cad0927eabc7832e65058"
+        ]
+      },
+      "pool": {
+        "address": "0x8C89E36da2d5b6456b12BB71ebdF351A11e43e70",
+        "tx": "0x060cf3c31a74fb7de17b5f9fc42d677c0474e14b1607f0c9b0f7baed7a940cf2",
+        "args": []
+      }
+    },
+    "AnteWETH9Test": {
+      "test": {
+        "address": "0xfE0Ea24d45a86dF6F45702ccaC130c25181c6798",
+        "tx": "0x206fc8a2e331d378b0401aaa723fcc0d65ad23fb4629c132534e768732a914cf",
+        "args": [
+          "0xc778417e063141139fce010982780140aa0cd5ab"
+        ]
+      },
+      "pool": {
+        "address": "0x469D04C6D3b5E9f43DDDf498B6CB478711f5Ba28",
+        "tx": "0xfb6b01f5a05cd97a18bee9b8ca3c2852c09b939fdf6b3caba4e31898da5a8a24",
+        "args": []
+      }
+    },
+    "AnteEthDevRugTest": {
+      "test": {
+        "address": "0xB9F405e493D238Dd1E6Ea03E0503d0c15f46e48D",
+        "tx": "0x102f122e12ed28fd07747787eb91103a8ecba3b81d5b2231b3287bdcc1e5b067",
+        "args": [
+          "0xc778417e063141139fce010982780140aa0cd5ab"
+        ]
+      },
+      "pool": {
+        "address": "0xeA9Ccc70196916B8723E9d8d503DdD48D12AC1e8",
+        "tx": "0xa0a3e4a75ca459313778e3beaf940164f40d006a6485237bbba67be67189cc71",
+        "args": []
+      }
+    },
+    "AnteWBTCSupplyTest": {
+      "test": {
+        "address": "0x4c52E39a45D67284D8692e7D8377e3834983Bd89",
+        "tx": "0x01c30de6f01e4732bd6fcea9569e705b3d965b63f6066ce5d0c0a6fb1d76fcbe",
+        "args": [
+          "0xD5D087d31dDcc58c70d0441554dff9C9874c882F"
+        ]
+      },
+      "pool": {
+        "address": "0x2fbD279B10248bd0b7d1f656Af585234B2727aA8",
+        "tx": "0x0d0f72f39aba9047e8529a827283d435dff1d11d1f47a85b0e239a3c65e225d6",
+        "args": []
+      }
+    }
+  }
+}

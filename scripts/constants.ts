@@ -32,6 +32,7 @@ export interface DeployConstants {
   USDT: string;
   ETH2: string;
   ETH_DEV: string;
+  OVERRIDES: any;
 }
 
 export const ONE_ETH = hre.ethers.utils.parseEther('1');
@@ -44,6 +45,11 @@ export const deployConsts: Record<string, DeployConstants> = {
     USDT: '0xdac17f958d2ee523a2206206994597c13d831ec7',
     ETH_DEV: '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
     WBTC: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    // need to override gas fee because estimates returned by Infura cause
+    // "Transaction Underpriced" errors sometimes
+    OVERRIDES: {
+      maxFeePerGas: hre.ethers.utils.parseUnits('150', 'gwei'),
+    },
   },
   rinkeby: {
     WETH: '0xc778417e063141139fce010982780140aa0cd5ab',
@@ -52,6 +58,7 @@ export const deployConsts: Record<string, DeployConstants> = {
     USDT: '0xfb1d709cb959ac0ea14cad0927eabc7832e65058',
     ETH_DEV: '0xc778417e063141139fce010982780140aa0cd5ab', // just need an address with a lot of eth
     WBTC: '0xD5D087d31dDcc58c70d0441554dff9C9874c882F', // just a random rinkeby token with 8 decimals and less than 21M supply
+    OVERRIDES: {},
   },
   hardhat: {
     // forked mainnet, so can use same config as mainnet
@@ -61,6 +68,7 @@ export const deployConsts: Record<string, DeployConstants> = {
     USDT: '0xdac17f958d2ee523a2206206994597c13d831ec7',
     ETH_DEV: '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
     WBTC: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    OVERRIDES: {},
   },
   localhost: {
     // forked mainnet, so can use same config as mainnet
@@ -70,5 +78,6 @@ export const deployConsts: Record<string, DeployConstants> = {
     USDT: '0xdac17f958d2ee523a2206206994597c13d831ec7',
     ETH_DEV: '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
     WBTC: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    OVERRIDES: {},
   },
 };

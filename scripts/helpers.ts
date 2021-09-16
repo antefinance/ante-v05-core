@@ -18,7 +18,7 @@ export async function deployTestPoolAndRecord(
 
   // wait 10 seconds for infura nodes to sync
   await delay(10000);
-  const tx = await poolFactory.createPool(testContract.address);
+  const tx = await poolFactory.createPool(testContract.address, constants.deployConsts[hre.network.name]['OVERRIDES']);
   const receipt = await tx.wait();
 
   const poolAddr = receipt.events[0].args['testPool'];
@@ -59,7 +59,7 @@ export async function deployContract(hre: any, contractName: string, args: any[]
 
   const factory = await hre.ethers.getContractFactory(contractName);
 
-  const contract = await factory.deploy(...args);
+  const contract = await factory.deploy(...args.concat(constants.deployConsts[hre.network.name]['OVERRIDES']));
   await contract.deployed();
 
   console.log('Contract deployed to', chalk.magenta(contract.address));

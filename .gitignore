@@ -34,7 +34,6 @@ lerna-debug.log
 # added 2021-06-01
 **/node_modules
 artifacts
-deployments
 typechain
 packages/react-app/src/contracts/*
 !packages/react-app/src/contracts/contracts.js
