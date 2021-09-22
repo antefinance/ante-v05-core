@@ -52,13 +52,13 @@ npm run deploy -- --network [NETWORK_NAME]
 
 This command will deploy the following contracts
 
-- [AntePoolFactory](./contracts/AntePoolFactory.sol)
-- [AnteWBTCSupplyTest](./contracts/examples/AnteWBTCSupplyTest.sol) and associated [AntePool](./contracts/AntePool.sol)
-- [AnteETHDevRugTest](./contracts/examples/AnteEthDevRugTest.sol) and associated [AntePool](./contracts/AntePool.sol)
-- [AnteETH2DepositTest](./contracts/examples/AnteETH2DepositTest.sol) and associated [AntePool](./contracts/AntePool.sol)
-- [AnteUSDCSupplyTest](./contracts/examples/AnteUSDCSupplyTest.sol) and associated [AntePool](./contracts/AntePool.sol)
-- [AnteUSDTSupplyTest](./contracts/examples/AnteUSDTSupplyTest.sol) and associated [AntePool](./contracts/AntePool.sol)
-- [AnteWETH9Test](./contracts/examples/AnteWETH9Test.sol.sol) and associated [AntePool](./contracts/AntePool.sol)
+- [`AntePoolFactory`](./contracts/AntePoolFactory.sol)
+- [`AnteWBTCSupplyTest`](./contracts/examples/AnteWBTCSupplyTest.sol) and associated [`AntePool`](./contracts/AntePool.sol)
+- [`AnteETHDevRugTest`](./contracts/examples/AnteEthDevRugTest.sol) and associated [`AntePool`](./contracts/AntePool.sol)
+- [`AnteETH2DepositTest`](./contracts/examples/AnteETH2DepositTest.sol) and associated [`AntePool`](./contracts/AntePool.sol)
+- [`AnteUSDCSupplyTest`](./contracts/examples/AnteUSDCSupplyTest.sol) and associated [`AntePool`](./contracts/AntePool.sol)
+- [`AnteUSDTSupplyTest`](./contracts/examples/AnteUSDTSupplyTest.sol) and associated [`AntePool`](./contracts/AntePool.sol)
+- [`AnteWETH9Test`](./contracts/examples/AnteWETH9Test.sol.sol) and associated [`AntePool`](./contracts/AntePool.sol)
 
 If you are deploying to your local hardhat node, you must first start the node by running `npm run node` in a separate terminal window
 
