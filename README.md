@@ -22,7 +22,7 @@ Make sure to use Node version 14 or higher and NPM version 6 or higher
 Clone the ante-v0-core repository
 
 ```
-git clone git@github.com:anteproject/ante-v0-core.git
+git clone git@github.com:antefinance/ante-v0-core.git
 ```
 
 Install all required packages
