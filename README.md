@@ -4,12 +4,16 @@
 
 ## Introduction
 
-ANTE stands for Autonomous Native Testing Environment. AnteV0.5 is meant to be an **alpha release**. Please use it at your own risk.
+Ante hosts incentivized unit tests on-chain.
 
-Ante makes it easy to create autonomous guarantees for any smart contract system on any blockchain. Those guarantees are verifiable by anyone in real-time. Others can later build upon those guarantees.
-Ante enables more advanced and secure composition of DeFi primitives and existing financial service integrations.
+Ante makes it easy to create and stake trustless guarantees about smart contract projects. Those open guarantees ("Ante Tests") are verifiable by anyone in real-time. Others can build upon them and view explicit data about the community's trust in a project.
+
+Ante makes **trust in a protocol** explicit and measurable, which enables safer composition of DeFi primitives and could accelerate global financial integration.
 
 [See our gitbook for more information](https://docs.ante.finance/antev05/)
+
+Disclaimer: Ante (Autonomous Native Testing Environment)v0.5 is an **alpha release** and **currently unaudited.** Please use it at your own risk.
+
 
 ## Installation
 
