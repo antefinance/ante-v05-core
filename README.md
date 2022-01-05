@@ -98,6 +98,10 @@ npm run lint:sol
 
 Full list of available commands can be found in [`package.json`](./package.json)
 
+# Bug Bounty
+
+We are offering a [bug bounty program](./bug-bounty.md) for previously undiscovered bugs.
+
 # Licensing
 
 All Ante v0.5 code is licensed under GNU General Public License v3.0, see [`LICENSE`](./LICENSE).
