@@ -35,10 +35,6 @@ describe('AnteMultiStaking', function () {
         await evmRevert(globalSnapshotId);
     });
 
-    it('should always be true', async () => {
-        expect(await test.alwaysTrue()).to.be.true;
-    });
-
     it('stake should increase by 1', async () => {
         const addresses = [USDC_TEST_ADDRESS];
 
@@ -104,7 +100,7 @@ describe('AnteMultiStaking', function () {
         expect(differenceUSDT).to.equal('5');
 
         // Withdraw from contract
-        await test.unstake(false);
+        await test.unstakeall(false);
 
         // Capture new stake on contracts
         const thirdRoundStakeUSDC = (await USDCDeployedContract.getTotalStaked() as BigNumber);
@@ -120,9 +116,9 @@ describe('AnteMultiStaking', function () {
         await test.multiStake(addresses, false, { value: hre.ethers.utils.parseEther('1') });
 
         // Withdraw from contract
-        await test.unstake(false);
+        await test.unstakeall(false);
 
         // Withdraw again
-        await expect(test.unstake(false)).to.be.revertedWith('ANTE: Nothing to unstake');
+        await expect(test.unstakeall(false)).to.be.revertedWith('ANTE: Nothing to unstake');
     });
 });

@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import "./interfaces/IAntePool.sol";
+import "./interfaces/IAnteMultiStake.sol";
 
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
-// In the multi stake function. Create a Ante Pool for each address passed.
+contract AnteMultiStaking is IAnteMultiStake {
 
-contract AnteMultiStaking {
-
-    mapping(address => address[]) antePools;
+    mapping(address => address[]) private antePools;
 
     function multiStake(address[] memory contracts, bool isChallenger) external payable {
         uint256 splitamount = msg.value / contracts.length;
@@ -23,7 +22,7 @@ contract AnteMultiStaking {
         antePools[msg.sender] = contracts;
     }
 
-    function unstake(bool isChallenger) external {
+    function unstakeall(bool isChallenger) external {
         require(antePools[msg.sender].length > 0, "No ante pools found for this address");
 
         for (uint256 i = 0; i < antePools[msg.sender].length; i++) {
@@ -31,7 +30,11 @@ contract AnteMultiStaking {
         }
     }
 
-    function alwaysTrue() external pure returns(bool) {
-        return true;
+    function unstake(uint256 amount, bool isChallenger) external {
+        require(antePools[msg.sender].length > 0, "No ante pools found for this address");
+
+        for (uint256 i = 0; i < antePools[msg.sender].length; i++) {
+            IAntePool(antePools[msg.sender][i]).unstake(amount, isChallenger);
+        }
     }
 }
