@@ -1,9 +1,10 @@
-import hre from 'hardhat';
+import hre, { ethers } from 'hardhat';
 const { waffle } = hre;
+const { provider } = waffle;
 
 import { AnteMultiStaking__factory, AnteMultiStaking } from '../../typechain';
 
-import { evmSnapshot, evmRevert } from '../helpers';
+import { evmSnapshot, evmRevert, evmIncreaseTime } from '../helpers';
 import { expect } from 'chai';
 import { BigNumber, Contract } from 'ethers';
 
@@ -15,6 +16,8 @@ describe('AnteMultiStaking', function () {
     let globalSnapshotId: string;
     let USDCDeployedContract: Contract;
     let USDTDeployedContract: Contract;
+
+    const [user] = provider.getWallets();
 
     before(async () => {
         globalSnapshotId = await evmSnapshot();
@@ -120,5 +123,19 @@ describe('AnteMultiStaking', function () {
 
         // Withdraw again
         await expect(test.unstakeall(false)).to.be.revertedWith('ANTE: Nothing to unstake');
+    });
+
+    it('should unstake and withdraw stake', async () => {
+        const addresses = [USDC_TEST_ADDRESS, USDT_TEST_ADDRESS];
+
+        console.log((await user.getBalance()).toString());
+        await test.connect(user).multiStake(addresses, false, { value: hre.ethers.utils.parseEther('1') });
+        console.log((await user.getBalance()).toString());
+        
+        await test.unstakeall(false);
+        evmIncreaseTime(60 * 60 * 25); // Increase time by 1 day 1 hour
+        await test.withdrawStakeToContract();
+
+        expect(1 == 1);
     });
 });

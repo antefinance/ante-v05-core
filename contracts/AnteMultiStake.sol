@@ -9,6 +9,8 @@ pragma solidity ^0.8.0;
 contract AnteMultiStaking is IAnteMultiStake {
 
     mapping(address => address[]) private antePools;
+    mapping(address => uint256) private totalStaked;
+    mapping(address => uint256) private availableToWithdraw;
 
     /// @notice Evenly split the amount of stake between all ante pools
     /// @param contracts A list of contracts to evenly split stake across
@@ -24,6 +26,7 @@ contract AnteMultiStaking is IAnteMultiStake {
         }
 
         antePools[msg.sender] = contracts;
+        totalStaked[msg.sender] += msg.value;
     }
 
     /// @notice Unstake all ante pools
@@ -45,5 +48,41 @@ contract AnteMultiStaking is IAnteMultiStake {
         for (uint256 i = 0; i < antePools[msg.sender].length; i++) {
             IAntePool(antePools[msg.sender][i]).unstake(amount, isChallenger);
         }
+    }
+
+    /// @notice This function needs extentive pen-testing
+    function withdrawStakeToContract() external {
+        require(antePools[msg.sender].length > 0, "No ante pools found for this address");
+
+        for (uint256 i = 0; i < antePools[msg.sender].length; i++) {
+            IAntePool(antePools[msg.sender][i]).withdrawStake();
+        }
+
+        availableToWithdraw[msg.sender] += totalStaked[msg.sender];
+        totalStaked[msg.sender] = 0;
+    }
+
+    function withdrawStakeToUser() external {
+        _safeTransfer(payable(msg.sender), availableToWithdraw[msg.sender]);
+    }
+
+    function _safeTransfer(address payable to, uint256 amount) internal {
+        to.transfer(_min(amount, address(this).balance));
+    }
+
+    /// @notice Returns the higher of 2 parameters
+    /// @param a Value A
+    /// @param b Value B
+    /// @return higher of a or b
+    function _max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    /// @notice Returns the lower of 2 parameters
+    /// @param a Value A
+    /// @param b Value B
+    /// @return lower of a or b
+    function _min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
     }
 }
