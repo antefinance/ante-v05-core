@@ -12,6 +12,8 @@
 pragma solidity ^0.8.0;
 
 interface IAnteMultiStake {
+
+    event ReceivedValue(address sender, uint256 value);
     /// @notice Evenly split the amount of stake between all ante pools
     /// @param contracts A list of contracts to evenly split stake across
     /// @param isChallenger Whether the user is a challenger

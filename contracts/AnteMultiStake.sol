@@ -12,6 +12,10 @@ contract AnteMultiStaking is IAnteMultiStake {
     mapping(address => uint256) private totalStaked;
     mapping(address => uint256) private availableToWithdraw;
 
+    receive() external payable {
+        emit ReceivedValue(msg.sender, msg.value);
+    }
+
     /// @notice Evenly split the amount of stake between all ante pools
     /// @param contracts A list of contracts to evenly split stake across
     /// @param isChallenger Whether the user is a challenger
