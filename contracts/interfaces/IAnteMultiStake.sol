@@ -23,8 +23,8 @@ interface IAnteMultiStake {
     /// @param isChallenger Whether the user is a challenger
     function unstakeall(bool isChallenger) external;
 
-    /// @notice Unstake a specific amount from all ante pools
-    /// @param amount The amount to unstake in total
-    /// @param isChallenger Whether the user is a challenger
-    function unstake(uint256 amount, bool isChallenger) external;
+    // /// @notice Unstake a specific amount from all ante pools
+    // /// @param amount The amount to unstake in total
+    // /// @param isChallenger Whether the user is a challenger
+    // function unstake(uint256 amount, bool isChallenger) external;
 }
