@@ -43,17 +43,6 @@ contract AnteMultiStaking is IAnteMultiStake {
         }
     }
 
-    /// @notice Unstake a specific amount from all ante pools
-    /// @param amount The amount to unstake in total
-    /// @param isChallenger Whether the user is a challenger
-    function unstake(uint256 amount, bool isChallenger) external {
-        require(antePools[msg.sender].length > 0, "No ante pools found for this address");
-
-        for (uint256 i = 0; i < antePools[msg.sender].length; i++) {
-            IAntePool(antePools[msg.sender][i]).unstake(amount, isChallenger);
-        }
-    }
-
     /// @notice This function needs extentive pen-testing
     function withdrawStakeToContract() external {
         require(antePools[msg.sender].length > 0, "No ante pools found for this address");
