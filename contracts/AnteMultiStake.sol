@@ -76,6 +76,12 @@ contract AnteMultiStaking is IAnteMultiStake {
         return totalStaked[msg.sender];
     }
 
+    /// @notice Function included for testing purposes. However may be used in the future
+    /// @return total stake available to withdraw
+    function getAvailableToWithdraw() external view returns (uint256) {
+        return availableToWithdraw[msg.sender];
+    }
+
     function _safeTransfer(address payable to, uint256 amount) internal {
         to.transfer(_min(amount, address(this).balance));
     }

@@ -4,7 +4,7 @@ const { provider } = waffle;
 
 import { AnteMultiStaking__factory, AnteMultiStaking } from '../../typechain';
 
-import { evmSnapshot, evmRevert, evmIncreaseTime } from '../helpers';
+import { evmSnapshot, evmRevert, evmIncreaseTime, calculateGasUsed } from '../helpers';
 import { expect } from 'chai';
 import { BigNumber, Contract } from 'ethers';
 
@@ -99,6 +99,8 @@ describe('AnteMultiStaking', function () {
         const differenceUSDC = (newStakeUSDC.sub(initialStakeUSDC)).div(BigNumber.from(10).pow(BigNumber.from(17)));
         const differenceUSDT = (newStakeUSDT.sub(initialStakeUSDT)).div(BigNumber.from(10).pow(BigNumber.from(17)));
 
+        // Able to use 5 instead of 0.5 because only divided by 10^17
+        // IE multiplying both sides by 10
         expect(differenceUSDC).to.equal('5');
         expect(differenceUSDT).to.equal('5');
 
@@ -111,6 +113,7 @@ describe('AnteMultiStaking', function () {
 
         // Check that thirdRound and initial stake are equal
         expect(thirdRoundStakeUSDC.eq(initialStakeUSDC));
+        expect(thirdRoundStakeUSDT.eq(initialStakeUSDT));
     });
 
     it('should revert after trying to double unstake', async () => {
@@ -139,4 +142,27 @@ describe('AnteMultiStaking', function () {
 
         expect((newContractBalance.sub(originalContractBalance).sub(contractBalanceBeforeActivity)).eq(hre.ethers.utils.parseEther('2')));
     });
+
+    it('should withdraw to user', async () => {
+        const addresses = [USDT_TEST_ADDRESS, USDC_TEST_ADDRESS];
+        const originalAvailableToWithdraw = await test.connect(user).getAvailableToWithdraw();
+
+        await test.connect(user).multiStake(addresses, false, { value: hre.ethers.utils.parseEther('2') });
+        await test.connect(user).unstakeall(false);
+
+        evmIncreaseTime(60 * 60 * 25); // Increase time by 1 day 1 hour
+
+        await test.connect(user).withdrawStakeToContract();
+
+        const userBalancePreWithdraw = await test.provider.getBalance(user.address)
+        const gasFee = await calculateGasUsed(await test.connect(user).withdrawStakeToUser());
+        const userBalancePostWithdraw = await test.provider.getBalance(user.address);
+
+        expect(userBalancePostWithdraw.sub(userBalancePreWithdraw)
+                                      .sub(originalAvailableToWithdraw)
+                                      .add(gasFee))
+                                      .eq(hre.ethers.utils.parseEther('2'));
+    });
+
+
 });
