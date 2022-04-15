@@ -22,7 +22,7 @@ describe('AnteMultiStaking', function () {
     before(async () => {
         globalSnapshotId = await evmSnapshot();
 
-        const [deployer] = waffle.provider.getWallets();
+        const [deployer, deployer_usdc, deployer_usdt] = waffle.provider.getWallets();
         const factory = (await hre.ethers.getContractFactory('AnteMultiStaking', deployer)) as AnteMultiStaking__factory;
 
         test = await factory.deploy();
@@ -125,17 +125,18 @@ describe('AnteMultiStaking', function () {
         await expect(test.unstakeall(false)).to.be.revertedWith('ANTE: Nothing to unstake');
     });
 
-    it('should unstake and withdraw stake', async () => {
-        const addresses = [USDC_TEST_ADDRESS, USDT_TEST_ADDRESS];
+    it('should unstake and withdraw stake to contract', async () => {
+        const addresses = [USDT_TEST_ADDRESS, USDC_TEST_ADDRESS];
+        const contractBalanceBeforeActivity = (await test.connect(user).getTotalStaked()).toString();
+        await test.connect(user).multiStake(addresses, false, { value: hre.ethers.utils.parseEther('2') });
 
-        console.log((await user.getBalance()).toString());
-        await test.connect(user).multiStake(addresses, false, { value: hre.ethers.utils.parseEther('1') });
-        console.log((await user.getBalance()).toString());
-        
-        await test.unstakeall(false);
+        await test.connect(user).unstakeall(false);
         evmIncreaseTime(60 * 60 * 25); // Increase time by 1 day 1 hour
-        await test.withdrawStakeToContract();
 
-        expect(1 == 1);
+        const originalContractBalance = await test.provider.getBalance(test.address);
+        await test.connect(user).withdrawStakeToContract();
+        const newContractBalance = await test.provider.getBalance(test.address);
+
+        expect((newContractBalance.sub(originalContractBalance).sub(contractBalanceBeforeActivity)).eq(hre.ethers.utils.parseEther('2')));
     });
 });

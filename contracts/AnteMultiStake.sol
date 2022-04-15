@@ -70,6 +70,12 @@ contract AnteMultiStaking is IAnteMultiStake {
         _safeTransfer(payable(msg.sender), availableToWithdraw[msg.sender]);
     }
 
+    /// @notice Function included for testing purposes. However may be used in the future
+    /// @return total stake a user has staked
+    function getTotalStaked() external view returns (uint256) {
+        return totalStaked[msg.sender];
+    }
+
     function _safeTransfer(address payable to, uint256 amount) internal {
         to.transfer(_min(amount, address(this).balance));
     }
@@ -89,4 +95,6 @@ contract AnteMultiStaking is IAnteMultiStake {
     function _min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
     }
+
+    
 }
