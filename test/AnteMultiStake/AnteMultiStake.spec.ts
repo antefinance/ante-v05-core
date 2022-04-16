@@ -17,12 +17,12 @@ describe('AnteMultiStaking', function () {
     let USDCDeployedContract: Contract;
     let USDTDeployedContract: Contract;
 
-    const [user] = provider.getWallets();
+    const [user, user1] = provider.getWallets();
 
     before(async () => {
         globalSnapshotId = await evmSnapshot();
 
-        const [deployer, deployer_usdc, deployer_usdt] = waffle.provider.getWallets();
+        const [deployer] = waffle.provider.getWallets();
         const factory = (await hre.ethers.getContractFactory('AnteMultiStaking', deployer)) as AnteMultiStaking__factory;
 
         test = await factory.deploy();
@@ -163,4 +163,14 @@ describe('AnteMultiStaking', function () {
                                       .add(gasFee))
                                       .eq(hre.ethers.utils.parseEther('2'));
     });
+
+    it('should return ante pools a user has staked to', async () => {
+        const addresses = [USDT_TEST_ADDRESS, USDC_TEST_ADDRESS];
+        await test.connect(user1).multiStake(addresses, false, { value: hre.ethers.utils.parseEther('2') });
+
+        const antePools = await test.getAntePools(user1.address);
+
+        expect(antePools[0]).to.be.equal(addresses[0]);
+        expect(antePools[1]).to.be.equal(addresses[1]);
+    })
 });
