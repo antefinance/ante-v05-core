@@ -81,15 +81,24 @@ contract AnteMultiStaking is IAnteMultiStake {
     }
 
     /// @notice Function included for testing purposes. However may be used in the future
+    /// @param user User address
     /// @return total stake a user has staked
-    function getTotalStaked() external view returns (uint256) {
-        return totalStaked[msg.sender];
+    function getTotalStaked(address user) external view returns (uint256) {
+        return totalStaked[user];
     }
 
     /// @notice Function included for testing purposes. However may be used in the future
+    /// @param user User address
     /// @return total stake available to withdraw
-    function getAvailableToWithdraw() external view returns (uint256) {
-        return availableToWithdraw[msg.sender];
+    function getAvailableToWithdraw(address user) external view returns (uint256) {
+        return availableToWithdraw[user];
+    }
+
+    /// @notice Get list of ante pools a user has staked to
+    /// @param user The user to get ante pools for
+    /// @return list of ante pools
+    function getAntePools(address user) external view returns (address[] memory) {
+        return antePools[user];
     }
 
     /// @notice Transfers funds to a user

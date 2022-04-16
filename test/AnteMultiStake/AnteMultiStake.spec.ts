@@ -130,7 +130,7 @@ describe('AnteMultiStaking', function () {
 
     it('should unstake and withdraw stake to contract', async () => {
         const addresses = [USDT_TEST_ADDRESS, USDC_TEST_ADDRESS];
-        const contractBalanceBeforeActivity = (await test.connect(user).getTotalStaked()).toString();
+        const contractBalanceBeforeActivity = (await test.getTotalStaked(user.address)).toString();
         await test.connect(user).multiStake(addresses, false, { value: hre.ethers.utils.parseEther('2') });
 
         await test.connect(user).unstakeall(false);
@@ -145,7 +145,7 @@ describe('AnteMultiStaking', function () {
 
     it('should withdraw to user', async () => {
         const addresses = [USDT_TEST_ADDRESS, USDC_TEST_ADDRESS];
-        const originalAvailableToWithdraw = await test.connect(user).getAvailableToWithdraw();
+        const originalAvailableToWithdraw = await test.getAvailableToWithdraw(user.address);
 
         await test.connect(user).multiStake(addresses, false, { value: hre.ethers.utils.parseEther('2') });
         await test.connect(user).unstakeall(false);

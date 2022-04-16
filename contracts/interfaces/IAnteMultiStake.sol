@@ -35,10 +35,12 @@ interface IAnteMultiStake {
     function withdrawStakeToUser() external;
 
     /// @notice Function included for testing purposes. However may be used in the future
+    /// @param user User
     /// @return total stake a user has staked
-    function getTotalStaked() external view returns (uint256);
+    function getTotalStaked(address user) external view returns (uint256);
 
     /// @notice Function included for testing purposes. However may be used in the future
+    /// @param user User
     /// @return total stake available to withdraw
-    function getAvailableToWithdraw() external view returns (uint256);
+    function getAvailableToWithdraw(address user) external view returns (uint256);
 }
