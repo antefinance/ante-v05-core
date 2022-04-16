@@ -63,7 +63,7 @@ contract AnteMultiStaking is IAnteMultiStake {
         totalStaked[msg.sender] -= amount;
     }
 
-    /// @notice This function needs extentive pen-testing
+    /// @notice Withdraws funds from stake contract and prepares it so that the user can withdraw it
     function withdrawStakeToContract() external {
         require(antePools[msg.sender].length > 0, "No ante pools found for this address");
 
@@ -75,6 +75,7 @@ contract AnteMultiStaking is IAnteMultiStake {
         pendingWithdrawals[msg.sender] = 0;
     }
 
+    /// @notice Withdraws funds back to user
     function withdrawStakeToUser() external {
         _safeTransfer(payable(msg.sender), availableToWithdraw[msg.sender]);
     }
@@ -91,6 +92,9 @@ contract AnteMultiStaking is IAnteMultiStake {
         return availableToWithdraw[msg.sender];
     }
 
+    /// @notice Transfers funds to a user
+    /// @param to The address to transfer funds to
+    /// @param amount The amount to transfer
     function _safeTransfer(address payable to, uint256 amount) internal {
         to.transfer(_min(amount, address(this).balance));
     }
@@ -110,6 +114,4 @@ contract AnteMultiStaking is IAnteMultiStake {
     function _min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
     }
-
-    
 }

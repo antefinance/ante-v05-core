@@ -23,8 +23,22 @@ interface IAnteMultiStake {
     /// @param isChallenger Whether the user is a challenger
     function unstakeall(bool isChallenger) external;
 
-    // /// @notice Unstake a specific amount from all ante pools
-    // /// @param amount The amount to unstake in total
-    // /// @param isChallenger Whether the user is a challenger
-    // function unstake(uint256 amount, bool isChallenger) external;
+    /// @notice Unstake a specific amount from all ante pools
+    /// @param amount The amount to unstake in total
+    /// @param isChallenger Whether the user is a challenger
+    function unstake(uint256 amount, bool isChallenger) external;
+
+    /// @notice Withdraws funds from stake contract and prepares it so that the user can withdraw it
+    function withdrawStakeToContract() external;
+
+    /// @notice Withdraws funds back to user
+    function withdrawStakeToUser() external;
+
+    /// @notice Function included for testing purposes. However may be used in the future
+    /// @return total stake a user has staked
+    function getTotalStaked() external view returns (uint256);
+
+    /// @notice Function included for testing purposes. However may be used in the future
+    /// @return total stake available to withdraw
+    function getAvailableToWithdraw() external view returns (uint256);
 }
