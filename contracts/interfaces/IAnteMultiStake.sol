@@ -43,4 +43,9 @@ interface IAnteMultiStake {
     /// @param user User
     /// @return total stake available to withdraw
     function getAvailableToWithdraw(address user) external view returns (uint256);
+
+    /// @notice Get list of ante pools a user has staked to
+    /// @param user The user to get ante pools for
+    /// @return list of ante pools
+    function getAntePools(address user) external view returns (address[] memory);
 }
