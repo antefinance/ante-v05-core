@@ -11,6 +11,7 @@ contract AnteMultiStaking is IAnteMultiStake {
     mapping(address => address[]) private antePools;
     mapping(address => uint256) private totalStaked;
     mapping(address => uint256) private availableToWithdraw;
+    mapping(address => uint256) private pendingWithdrawals;
 
     receive() external payable {
         emit ReceivedValue(msg.sender, msg.value);
@@ -41,6 +42,25 @@ contract AnteMultiStaking is IAnteMultiStake {
         for (uint256 i = 0; i < antePools[msg.sender].length; i++) {
             IAntePool(antePools[msg.sender][i]).unstakeAll(isChallenger);
         }
+
+        pendingWithdrawals[msg.sender] += totalStaked[msg.sender];
+        totalStaked[msg.sender] = 0;
+    }
+
+    /// @notice Unstake a specific amount from all ante pools
+    /// @param amount The amount to unstake in total
+    /// @param isChallenger Whether the user is a challenger
+    function unstake(uint256 amount, bool isChallenger) external {
+        require(antePools[msg.sender].length > 0, "No ante pools found for this address");
+
+        uint256 splitamount = amount / antePools[msg.sender].length;
+
+        for (uint256 i = 0; i < antePools[msg.sender].length; i++) {
+            IAntePool(antePools[msg.sender][i]).unstake(splitamount, isChallenger);
+        }
+
+        pendingWithdrawals[msg.sender] += amount;
+        totalStaked[msg.sender] -= amount;
     }
 
     /// @notice This function needs extentive pen-testing
@@ -51,8 +71,8 @@ contract AnteMultiStaking is IAnteMultiStake {
             IAntePool(antePools[msg.sender][i]).withdrawStake();
         }
 
-        availableToWithdraw[msg.sender] += totalStaked[msg.sender];
-        totalStaked[msg.sender] = 0;
+        availableToWithdraw[msg.sender] += pendingWithdrawals[msg.sender];
+        pendingWithdrawals[msg.sender] = 0;
     }
 
     function withdrawStakeToUser() external {
