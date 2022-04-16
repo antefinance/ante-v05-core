@@ -163,6 +163,4 @@ describe('AnteMultiStaking', function () {
                                       .add(gasFee))
                                       .eq(hre.ethers.utils.parseEther('2'));
     });
-
-
 });
