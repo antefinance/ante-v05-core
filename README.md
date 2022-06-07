@@ -12,8 +12,20 @@ Ante makes **trust in a protocol** explicit and measurable, which enables safer 
 
 [See our gitbook for more information](https://docs.ante.finance/antev05/)
 
-Disclaimer: Ante (Autonomous Native Testing Environment)v0.5 is an **alpha release** and **currently unaudited.** Please use it at your own risk.
+Disclaimer: While Ante (Autonomous Native Testing Environment) v0.5 is audited, it is an **alpha release.** Please use it at your own risk.
 
+## Deployed Contracts
+**Mainnets**
+| **Network**       | **Address**  |
+|:------------------|:-------------|
+| Ethereum Mainnet  | [0xa03492A9A663F04c51684A3c172FC9c4D7E02eDc](https://etherscan.io/address/0xa03492a9a663f04c51684a3c172fc9c4d7e02edc) |
+| Avalanche C-Chain | Coming soon! |
+
+**Testnets**
+| **Network**      | **Address**   |
+|:-----------------|:--------------|
+| Ethereum Rinkeby | [0x5a8b70edfd28A79756B54ed8DbeeE13e566920Aa](https://rinkeby.etherscan.io/address/0x5a8b70edfd28a79756b54ed8dbeee13e566920aa) |
+| Avalanche Fuji   | [0x04AA248fC896f6CaA1c9f13aE599fC812BaCc0FF](https://testnet.snowtrace.io/address/0x04aa248fc896f6caa1c9f13ae599fc812bacc0ff) |
 
 ## Installation
 
