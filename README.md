@@ -19,13 +19,13 @@ Disclaimer: While Ante (Autonomous Native Testing Environment) v0.5 is audited, 
 | **Network**       | **Address**  |
 |:------------------|:-------------|
 | Ethereum Mainnet  | [0xa03492A9A663F04c51684A3c172FC9c4D7E02eDc](https://etherscan.io/address/0xa03492a9a663f04c51684a3c172fc9c4d7e02edc) |
-| Avalanche C-Chain | Coming soon! |
+| Avalanche C-Chain | [0x18aB6357f673696375018f006B86fE44F195DE1f](https://snowtrace.io/address/0x18ab6357f673696375018f006b86fe44f195de1f) |
 
 **Testnets**
 | **Network**      | **Address**   |
 |:-----------------|:--------------|
 | Ethereum Rinkeby | [0x5a8b70edfd28A79756B54ed8DbeeE13e566920Aa](https://rinkeby.etherscan.io/address/0x5a8b70edfd28a79756b54ed8dbeee13e566920aa) |
-| Avalanche Fuji   | [0x04AA248fC896f6CaA1c9f13aE599fC812BaCc0FF](https://testnet.snowtrace.io/address/0x04aa248fc896f6caa1c9f13ae599fc812bacc0ff) |
+| Avalanche Fuji   | [0x45D520f5d0F8FB9Bd68aE16eC5B84fC341df0EA0](https://testnet.snowtrace.io/address/0x45d520f5d0f8fb9bd68ae16ec5b84fc341df0ea0) |
 
 ## Installation
 
